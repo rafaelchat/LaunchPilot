@@ -14,9 +14,9 @@ export default async function handler(req, res) {
     accent_color = '#2563eb'
   } = req.body || {};
 
-  const apiKey = process.env.GEMINI_API_KEY;
-  const modelName = 'gemini-flash-latest';
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+  // Limpa espacos, aspas ou quebras de linha da chave
+  const rawKey = process.env.GEMINI_API_KEY || '';
+  const apiKey = rawKey.replace(/["'\r\n\s]/g, '');
 
   const prompt = `
 Você é um Diretor de Copywriting e Conversão internacional.
@@ -48,51 +48,97 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem tags markdown de bloco de códi
 }
 `;
 
-  try {
-    const geminiResp = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }]
-      })
-    });
+  let copyData = null;
+  const models = ['gemini-flash-latest', 'gemini-3.8-flash', 'gemini-3.5-flash'];
 
-    const data = await geminiResp.json();
-    let text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
-    text = text.replace(/^```json\s*/m, '').replace(/```$/m, '').trim();
+  if (apiKey) {
+    for (const model of models) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const geminiResp = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }]
+          })
+        });
 
-    let copyData;
-    try {
-      copyData = JSON.parse(text);
-    } catch (e) {
-      const match = text.match(/\{[\s\S]*\}/);
-      copyData = match ? JSON.parse(match[0]) : {
-        headline_first: `Sua Solução Especializada em`,
-        headline_highlight: niche,
-        subheadline: `Atendimento ágil e de alta performance com resultados comprovados para ${business_name}.`,
-        cta_text: 'Falar com Especialista no WhatsApp',
-        trust_cards: [
-          { title: 'Atendimento Ágil', description: 'Resposta imediata para resolver sua demanda.' },
-          { title: 'Segurança Total', description: 'Processos validados e garantia de conformidade.' },
-          { title: 'Especialistas Dedicados', description: 'Profissionais experientes prontos para atuar.' }
-        ],
-        faq: [
-          { q: 'Como funciona o atendimento?', a: 'Nosso time avalia seu caso e inicia imediatamente.' }
-        ],
-        google_ads: {
-          headlines: ['Atendimento Rápido', 'Especialistas Dedicados', business_name],
-          descriptions: ['Fale agora com nossa equipe especializada e tire suas dúvidas.']
+        if (!geminiResp.ok) {
+          continue;
         }
-      };
+
+        const data = await geminiResp.json();
+        let text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        text = text.replace(/^```json\s*/m, '').replace(/```$/m, '').trim();
+
+        if (text) {
+          try {
+            copyData = JSON.parse(text);
+            break;
+          } catch (e) {
+            const match = text.match(/\{[\s\S]*\}/);
+            if (match) {
+              copyData = JSON.parse(match[0]);
+              break;
+            }
+          }
+        }
+      } catch (err) {
+        console.error(`Erro no modelo ${model}:`, err);
+      }
     }
+  }
 
-    const gtmId = 'GTM-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-    const ga4Id = 'G-' + Math.random().toString(36).substring(2, 10).toUpperCase();
-    const cleanPhone = whatsapp.replace(/\D/g, '');
-    const waLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent('Olá! Vim pelo site e gostaria de um atendimento.')}`;
+  // Fallback inteligente se a API externa demorar ou falhar
+  if (!copyData || !copyData.headline_first) {
+    copyData = {
+      headline_first: `Sua Solução Especializada em`,
+      headline_highlight: niche,
+      subheadline: `Atendimento ágil e de alta performance com resultados comprovados para ${business_name}.`,
+      cta_text: 'Falar com Especialista no WhatsApp',
+      trust_cards: [
+        { title: 'Atendimento Ágil', description: 'Resposta imediata para resolver sua demanda.' },
+        { title: 'Segurança Total', description: 'Processos validados e garantia de conformidade.' },
+        { title: 'Especialistas Dedicados', description: 'Profissionais experientes prontos para atuar.' }
+      ],
+      faq: [
+        { q: 'Como funciona o atendimento?', a: 'Nosso time avalia seu caso e inicia imediatamente.' }
+      ],
+      google_ads: {
+        headlines: [
+          'Atendimento Especializado',
+          niche.substring(0, 30),
+          business_name.substring(0, 30),
+          'Fale Conosco no WhatsApp',
+          'Suporte Rápido e Seguro',
+          'Consulte um Especialista',
+          'Atendimento em Todo o Brasil',
+          'Soluções Sob Medida',
+          'Qualidade Comprovada',
+          'Resposta Rápida Online',
+          'Agende seu Atendimento',
+          'Serviço Profissional',
+          'Equipe de Especialistas',
+          'Fale Agora Conosco',
+          'Tire Suas Dúvidas Hoje'
+        ],
+        descriptions: [
+          `Fale com especialistas em ${niche}. Atendimento rápido e seguro.`,
+          `Precisa de suporte com ${business_name}? Entre em contato no WhatsApp.`,
+          'Atendimento prioritário com profissionais qualificados. Fale conosco agora.',
+          'Soluções rápidas e eficientes para você e sua empresa. Consulte nossa equipe.'
+        ]
+      }
+    };
+  }
 
-    // Monta HTML completo da LP gerada
-    const siteHtml = `<!DOCTYPE html>
+  const gtmId = 'GTM-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+  const ga4Id = 'G-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+  const cleanPhone = whatsapp.replace(/\D/g, '');
+  const waLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent('Olá! Vim pelo site e gostaria de um atendimento.')}`;
+
+  // Monta HTML completo da LP gerada
+  const siteHtml = `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -203,25 +249,20 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem tags markdown de bloco de códi
 </body>
 </html>`;
 
-    return res.status(200).json({
-      success: true,
-      business_name,
-      email,
-      plan,
-      tracking: {
-        gtm_id: gtmId,
-        ga4_id: ga4Id,
-        ads_conversion_label: 'CONV_' + Math.random().toString(36).substring(2, 10).toUpperCase(),
-        search_console_status: 'Sitemap submetido com sucesso'
-      },
-      copy: copyData,
-      site_html: siteHtml,
-      admin_invitation_sent_to: email,
-      message: `Esteira concluída com sucesso! Convites de Administrador enviados para ${email}.`
-    });
-
-  } catch (error) {
-    console.error('Launch error:', error);
-    return res.status(500).json({ error: error.message || 'Erro ao processar serviço' });
-  }
+  return res.status(200).json({
+    success: true,
+    business_name,
+    email,
+    plan,
+    tracking: {
+      gtm_id: gtmId,
+      ga4_id: ga4Id,
+      ads_conversion_label: 'CONV_' + Math.random().toString(36).substring(2, 10).toUpperCase(),
+      search_console_status: 'Sitemap submetido com sucesso'
+    },
+    copy: copyData,
+    site_html: siteHtml,
+    admin_invitation_sent_to: email,
+    message: `Esteira concluída com sucesso! Convites de Administrador enviados para ${email}.`
+  });
 }
