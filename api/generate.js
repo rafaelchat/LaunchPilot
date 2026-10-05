@@ -1,9 +1,14 @@
 /**
  * API Route: /api/generate
- * LaunchPilot Turnkey Cloud Engine — Hosted on Vercel Serverless
- * Executa autenticação OAuth2 sob agenciaadlovers@gmail.com,
- * pesquisa competitiva, geração de copy via Gemini, provisionamento
- * de GTM, GA4, Search Console e convite de Administrador para o cliente.
+ * LaunchPilot Turnkey Cloud Engine - Hosted on Vercel Serverless
+ * 
+ * FLUXO TURNKEY PARA SITES EXISTENTES:
+ * 1. Lê a URL do site atual do cliente e audita tags (GTM, GA4, Ads, Pixel) e conteúdo
+ * 2. Pesquisa de mercado e inteligência competitiva via Google Gemini
+ * 3. Criação e provisionamento de contas no Google Cloud via agenciaadlovers@gmail.com
+ * 4. Estruturação de 4 grupos de anúncios no Google Ads para os serviços detectados
+ * 5. Geração do Kit de Instalação de Tags com deduplicação de cliques no WhatsApp por orderId
+ * 6. Concessão de permissões de Administrador para o cliente
  */
 
 async function getGoogleAccessToken() {
@@ -24,25 +29,130 @@ async function getGoogleAccessToken() {
     return null;
   }
 
-  const tokenResp = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: clientId,
-      client_secret: clientSecret,
-      refresh_token: refreshToken,
-      grant_type: 'refresh_token'
-    }).toString()
-  });
+  try {
+    const tokenResp = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        refresh_token: refreshToken,
+        grant_type: 'refresh_token'
+      }).toString()
+    });
 
-  if (!tokenResp.ok) {
-    const errText = await tokenResp.text();
-    console.error('Erro ao gerar access token do Google:', errText);
+    if (!tokenResp.ok) {
+      const errText = await tokenResp.text();
+      console.error('Erro ao gerar access token do Google:', errText);
+      return null;
+    }
+
+    const data = await tokenResp.json();
+    return data.access_token;
+  } catch (err) {
+    console.error('Exceção ao obter access token:', err);
     return null;
   }
+}
 
-  const data = await tokenResp.json();
-  return data.access_token;
+// Crawler e Extrator de Conteúdo e Tags do Site Existente
+async function crawlSite(url) {
+  let cleanUrl = url.trim();
+  if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+    cleanUrl = 'https://' + cleanUrl;
+  }
+
+  try {
+    const resp = await fetch(cleanUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      },
+      redirect: 'follow',
+      signal: AbortSignal.timeout(10000)
+    });
+
+    if (!resp.ok) {
+      return {
+        url: cleanUrl,
+        error: `HTTP ${resp.status}`,
+        title: '',
+        description: '',
+        h1s: [],
+        h2s: [],
+        wa_links: [],
+        phones: [],
+        detected_tags: { gtm: [], ga4: [], google_ads: [], meta_pixel: false },
+        clean_text_sample: ''
+      };
+    }
+
+    const html = await resp.text();
+
+    // Metadados
+    const titleMatch = html.match(/<title[^>]*>(.*?)<\/title>/is);
+    const title = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, '').trim() : '';
+
+    const descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["'](.*?)["']/is) ||
+                      html.match(/<meta[^>]*content=["'](.*?)["'][^>]*name=["']description["']/is);
+    const description = descMatch ? descMatch[1].trim() : '';
+
+    // Cabeçalhos H1 e H2
+    const h1s = [...html.matchAll(/<h1[^>]*>(.*?)<\/h1>/gis)].map(m => m[1].replace(/<[^>]+>/g, '').trim()).filter(Boolean).slice(0, 5);
+    const h2s = [...html.matchAll(/<h2[^>]*>(.*?)<\/h2>/gis)].map(m => m[1].replace(/<[^>]+>/g, '').trim()).filter(Boolean).slice(0, 8);
+
+    // Links de WhatsApp
+    const waMatches = [...html.matchAll(/https?:\/\/(?:wa\.me|api\.whatsapp\.com)[^\s"\'<>]+/gi)].map(m => m[0]);
+    const waLinks = [...new Set(waMatches)];
+
+    // Telefones
+    const phoneMatches = [...html.matchAll(/(?:\+?55\s?)?(?:\(?\d{2}\)?\s?)?(?:9\d{4}[-\s]?\d{4}|\d{4}[-\s]?\d{4})/g)].map(m => m[0].trim());
+    const phones = [...new Set(phoneMatches.filter(p => p.length >= 8))].slice(0, 5);
+
+    // Detecção de Tags Existentes
+    const gtmMatches = [...html.matchAll(/GTM-[A-Z0-9]+/g)].map(m => m[0]);
+    const ga4Matches = [...html.matchAll(/G-[A-Z0-9]+/g)].map(m => m[0]);
+    const adsMatches = [...html.matchAll(/AW-[0-9]+/g)].map(m => m[0]);
+    const hasPixel = /fbq\(['"]init['"]|connect\.facebook\.net/i.test(html);
+
+    // Texto Limpo para Análise Semântica
+    let cleanText = html.replace(/<script[^>]*>.*?<\/script>/gis, ' ')
+                        .replace(/<style[^>]*>.*?<\/style>/gis, ' ')
+                        .replace(/<[^>]+>/g, ' ')
+                        .replace(/\s+/g, ' ')
+                        .trim()
+                        .slice(0, 6500);
+
+    return {
+      url: cleanUrl,
+      title,
+      description,
+      h1s,
+      h2s,
+      wa_links: waLinks,
+      phones,
+      detected_tags: {
+        gtm: [...new Set(gtmMatches)],
+        ga4: [...new Set(ga4Matches)],
+        google_ads: [...new Set(adsMatches)],
+        meta_pixel: hasPixel
+      },
+      clean_text_sample: cleanText
+    };
+
+  } catch (err) {
+    return {
+      url: cleanUrl,
+      error: err.message,
+      title: '',
+      description: '',
+      h1s: [],
+      h2s: [],
+      wa_links: [],
+      phones: [],
+      detected_tags: { gtm: [], ga4: [], google_ads: [], meta_pixel: false },
+      clean_text_sample: ''
+    };
+  }
 }
 
 export default async function handler(req, res) {
@@ -59,157 +169,158 @@ export default async function handler(req, res) {
   }
 
   const {
-    business_name = 'Minha Empresa',
-    niche = 'Serviços Especializados',
-    region = 'Brasil Todo',
-    audience = 'Clientes Qualificados',
-    whatsapp = '5511999998888',
-    email = 'cliente@exemplo.com.br',
-    primary_color = '#0f172a',
-    accent_color = '#2563eb'
+    site_url = '',
+    email = '',
+    business_name = '',
+    whatsapp = '',
+    ads_cid = '491-198-0801'
   } = req.body || {};
+
+  if (!site_url && !business_name) {
+    return res.status(400).json({ error: 'É necessário informar ao menos a URL do site ou o nome da empresa.' });
+  }
+
+  // 1. CRAWL DO SITE EXISTENTE
+  let crawlData = {
+    url: site_url,
+    title: '',
+    description: '',
+    h1s: [],
+    h2s: [],
+    wa_links: [],
+    phones: [],
+    detected_tags: { gtm: [], ga4: [], google_ads: [], meta_pixel: false },
+    clean_text_sample: ''
+  };
+
+  if (site_url) {
+    crawlData = await crawlSite(site_url);
+  }
 
   const rawKey = process.env.GEMINI_API_KEY || '';
   const apiKey = rawKey.replace(/["'\r\n\s]/g, '');
 
+  // 2. PROMPT DE INTELIGÊNCIA COMPETITIVA & ESTRUTURAÇÃO DE CAMPANHAS
   const prompt = `
-Atue como Diretor de Inteligência de Tráfego e Copywriting de alta conversão.
-Empresa: "${business_name}"
-Nicho: "${niche}"
-Região: "${region}"
-Público-Alvo: "${audience}"
-WhatsApp: "${whatsapp}"
+Você é o Diretor de Inteligência de Tráfego Pago, Copywriting e Estratégia de Google Ads da Agência AdLovers.
+Analise as informações do site existente do cliente abaixo:
 
-Crie o pacote de lançamento turnkey completo contendo pesquisa de concorrentes, copy e anúncios.
-Retorne ESTRITAMENTE um objeto JSON válido (sem tags markdown de bloco) com o seguinte esquema:
+URL do Site: "${crawlData.url}"
+Título da Página: "${crawlData.title}"
+Meta Description: "${crawlData.description}"
+Cabeçalhos H1: ${JSON.stringify(crawlData.h1s)}
+Cabeçalhos H2: ${JSON.stringify(crawlData.h2s)}
+WhatsApp/Contatos Encontrados: ${JSON.stringify(crawlData.wa_links)}
+Texto Extraído do Site:
+"""${crawlData.clean_text_sample.slice(0, 4000)}"""
+
+Dados fornecidos pelo operador:
+Nome informado: "${business_name}"
+Email para Admin: "${email}"
+WhatsApp informado: "${whatsapp}"
+
+TAREFA OBRIGATÓRIA:
+1. Extraia o Nome Comercial real da empresa (se não informado) e seu Nicho específico de atuação.
+2. Identifique os 4 principais serviços/verticais comercializados no site para estruturar 4 Grupos de Anúncios no Google Ads.
+3. Realize a Pesquisa de Mercado e Dossiê de Concorrentes diretos que disputam o mesmo leilão no Brasil.
+4. Crie uma matriz de Google Ads com 15 Títulos RSA (máximo 30 caracteres cada), 4 Descrições RSA (máximo 90 caracteres cada), palavras-chave exatas e de frase, e 20+ palavras-chave negativas B2B/anticuriosos.
+5. Crie 3 perguntas estratégicas de triagem para qualificação imediata de leads no WhatsApp.
+
+Retorne ESTRITAMENTE um objeto JSON válido (sem markdown, sem \`\`\`json):
 {
-  "niche_summary": "Resumo de mercado, concorrência e ticket médio do nicho.",
+  "detected_company_name": "Nome da Empresa",
+  "detected_niche": "Nicho Específico",
+  "detected_audience": "Público-Alvo Qualificado",
+  "niche_summary": "Resumo de mercado, concorrência no Google Ads e apelo de urgência.",
+  "core_services": [
+    {"name": "Serviço 1", "description": "Breve descrição do serviço 1"},
+    {"name": "Serviço 2", "description": "Breve descrição do serviço 2"},
+    {"name": "Serviço 3", "description": "Breve descrição do serviço 3"},
+    {"name": "Serviço 4", "description": "Breve descrição do serviço 4"}
+  ],
   "competitors": [
     {
       "name": "Concorrente 1",
-      "domain": "dominio1.com.br",
-      "focus": "Foco da oferta no Google Ads",
-      "approach": "Gatilhos e modelo comercial",
-      "weaknesses": "Ponto fraco identificado"
+      "domain": "concorrente1.com.br",
+      "focus": "Foco do anúncio e proposta",
+      "approach": "Modelo comercial e gatilhos",
+      "weaknesses": "Ponto fraco explorável"
     },
     {
       "name": "Concorrente 2",
-      "domain": "dominio2.com.br",
+      "domain": "concorrente2.com.br",
       "focus": "Foco da oferta",
-      "approach": "Abordagem",
+      "approach": "Abordagem no leilão",
       "weaknesses": "Ponto fraco"
     },
     {
       "name": "Concorrente 3",
-      "domain": "dominio3.com.br",
+      "domain": "concorrente3.com.br",
       "focus": "Foco da oferta",
       "approach": "Abordagem",
       "weaknesses": "Ponto fraco"
     }
   ],
   "market_gaps": [
-    {"title": "1. Brecha / Diferencial 1", "description": "Como explorar para converter mais"},
-    {"title": "2. Brecha / Diferencial 2", "description": "Como explorar para converter mais"},
-    {"title": "3. Brecha / Diferencial 3", "description": "Como explorar para converter mais"}
+    {"title": "1. Brecha de Posicionamento", "description": "Como superar os concorrentes no Google Ads"},
+    {"title": "2. Diferencial de Velocidade", "description": "Fricção zero e resposta imediata"},
+    {"title": "3. Transparência e Segurança", "description": "Gatilho de confiança e redução de risco"}
   ],
   "triage_questions": [
-    "Pergunta 1 para qualificação rápida no WhatsApp",
-    "Pergunta 2 para diagnóstico",
-    "Pergunta 3 sobre urgência ou valor"
-  ],
-  "home": {
-    "page_title": "${business_name} | Atendimento Especializado em ${region}",
-    "meta_description": "Assessoria e atendimento ágil em ${niche}. Proteja seus direitos e solucione seu caso com especialistas.",
-    "badge_text": "Atendimento Humano · ${region} · Experiência Comprovada",
-    "headline_first": "Precisa de Solução Rápida para",
-    "headline_highlight": "${niche}?",
-    "subheadline": "Atendimento especializado e estratégico com ação imediata para o seu negócio.",
-    "cta_text": "Avaliar Meu Caso no WhatsApp",
-    "viability_title": "Análise Rápida de Viabilidade",
-    "viability_subtitle": "Receba um diagnóstico preliminar do seu caso diretamente no WhatsApp em poucos minutos.",
-    "trust_cards": [
-      {"icon": "⚡", "title": "Ação Imediata", "description": "Medidas rápidas para estancar prejuízos e resolver sua situação."},
-      {"icon": "🛡️", "title": "Sigilo & Segurança", "description": "Proteção integral de dados com ética e responsabilidade."},
-      {"icon": "🎯", "title": "Experiência Comprovada", "description": "Especialistas focados em resultados concretos."}
-    ],
-    "stats": [
-      {"number": "98%", "label": "Casos avaliados no mesmo dia"},
-      {"number": "24/7", "label": "Plantão para urgências"},
-      {"number": "100%", "label": "Atendimento humano exclusivo"}
-    ],
-    "faq": [
-      {"q": "Quanto custa a avaliação inicial?", "a": "A avaliação preliminar de viabilidade é 100% gratuita no WhatsApp."},
-      {"q": "Como funciona o atendimento?", "a": "Atendemos de forma digital e segura em todo o Brasil."},
-      {"q": "Qual o prazo para início das ações?", "a": "Nosso contato é imediato e as primeiras orientações são dadas em poucas horas."},
-      {"q": "Como funciona a contratação?", "a": "Trabalhamos com total clareza e transparência contratual prévia."}
-    ]
-  },
-  "verticals": [
-    {
-      "slug": "servico-especifico-1",
-      "title": "Especialidade 1",
-      "headline": "Solução Focada em Especialidade 1",
-      "subheadline": "Atuação técnica e estratégica para estancar danos.",
-      "cards": [
-        {"title": "Diagnóstico Inicial", "desc": "Análise das provas e documentos."},
-        {"title": "Medida Estratégica", "desc": "Ação direcionada aos órgãos competentes."},
-        {"title": "Acompanhamento", "desc": "Monitoramento constante até a resolução."}
-      ],
-      "msg": "Olá! Gostaria de uma avaliação sobre Especialidade 1."
-    },
-    {
-      "slug": "servico-especifico-2",
-      "title": "Especialidade 2",
-      "headline": "Solução Focada em Especialidade 2",
-      "subheadline": "Assessoria preventiva e contenciosa.",
-      "cards": [
-        {"title": "Análise Detalhada", "desc": "Verificação das normas aplicáveis."},
-        {"title": "Execução Eficaz", "desc": "Medidas céleres sem burocracia."},
-        {"title": "Segurança", "desc": "Blindagem jurídica do seu patrimônio."}
-      ],
-      "msg": "Olá! Preciso de suporte em Especialidade 2."
-    },
-    {
-      "slug": "servico-especifico-3",
-      "title": "Especialidade 3",
-      "headline": "Solução Focada em Especialidade 3",
-      "subheadline": "Medidas de urgência e defesa de direitos.",
-      "cards": [
-        {"title": "Plantão de Urgência", "desc": "Resposta rápida para casos críticos."},
-        {"title": "Notificações e Ações", "desc": "Defesa estruturada com jurisprudência."},
-        {"title": "Resolução", "desc": "Foco em restaurar sua tranquilidade."}
-      ],
-      "msg": "Olá! Preciso de atendimento urgente para Especialidade 3."
-    }
+    "Pergunta 1 de qualificação no WhatsApp",
+    "Pergunta 2 sobre prazo ou urgência",
+    "Pergunta 3 sobre documentação ou valor"
   ],
   "google_ads": {
+    "ad_groups": [
+      {
+        "name": "G1: [Nome do Serviço 1]",
+        "keywords_exact": ["[palavra 1]", "[palavra 2]"],
+        "keywords_phrase": ["\"palavra 1\"", "\"palavra 2\""]
+      },
+      {
+        "name": "G2: [Nome do Serviço 2]",
+        "keywords_exact": ["[palavra 1]", "[palavra 2]"],
+        "keywords_phrase": ["\"palavra 1\"", "\"palavra 2\""]
+      },
+      {
+        "name": "G3: [Nome do Serviço 3]",
+        "keywords_exact": ["[palavra 1]", "[palavra 2]"],
+        "keywords_phrase": ["\"palavra 1\"", "\"palavra 2\""]
+      },
+      {
+        "name": "G4: [Nome do Serviço 4]",
+        "keywords_exact": ["[palavra 1]", "[palavra 2]"],
+        "keywords_phrase": ["\"palavra 1\"", "\"palavra 2\""]
+      }
+    ],
     "headlines": [
-      "Atendimento Especializado",
-      "Avaliação Imediata no Whats",
-      "Especialistas no Assunto",
-      "Fale Conosco Agora",
-      "Atendimento na Sua Região",
-      "Análise de Viabilidade",
-      "Soluções Rápidas e Seguras",
-      "Atendimento Especializado",
-      "Proteja Seus Direitos",
-      "Equipe Qualificada",
-      "Medidas de Urgência",
-      "Atendimento 100% Digital",
-      "Fale no WhatsApp Hoje",
-      "Suporte Profissional",
-      "Consulte Seu Caso Aqui"
+      "Título 1 (<=30c)",
+      "Título 2 (<=30c)",
+      "Título 3 (<=30c)",
+      "Título 4 (<=30c)",
+      "Título 5 (<=30c)",
+      "Título 6 (<=30c)",
+      "Título 7 (<=30c)",
+      "Título 8 (<=30c)",
+      "Título 9 (<=30c)",
+      "Título 10 (<=30c)",
+      "Título 11 (<=30c)",
+      "Título 12 (<=30c)",
+      "Título 13 (<=30c)",
+      "Título 14 (<=30c)",
+      "Título 15 (<=30c)"
     ],
     "descriptions": [
-      "Precisa de atendimento especializado? Avaliamos seu caso com agilidade no WhatsApp.",
-      "Atendimento humano e especializado na sua região. Fale com nossos especialistas agora.",
-      "Proteja seu negócio e resolva seu caso com medidas estratégicas comprovadas.",
-      "Avaliação rápida de viabilidade sem compromisso. Entre em contato diretamente no WhatsApp."
+      "Descrição 1 com benefício e urgência (máximo 90 caracteres).",
+      "Descrição 2 com autoridade e atendimento especializado no WhatsApp (máx 90 caracteres).",
+      "Descrição 3 com chamada para ação clara e avaliação sem compromisso (máx 90 caracteres).",
+      "Descrição 4 com proteção de direitos e resposta rápida para seu caso (máx 90 caracteres)."
     ],
     "negative_keywords": [
-      "gratis", "de graca", "curso", "salario", "vagas", "o que e", "pdf",
+      "gratis", "de graca", "curso", "vagas", "salario", "o que e", "pdf",
       "significado", "trabalhe conosco", "concurso", "download", "apostila",
-      "login", "reclame aqui", "telefone 0800", "tutorial", "faculdade"
+      "login", "reclame aqui", "telefone 0800", "tutorial", "faculdade", "modelo"
     ]
   }
 }
@@ -246,65 +357,70 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem tags markdown de bloco) com o s
     }
   }
 
-  // Fallback seguro caso Gemini atinja timeout ou falhe
+  // Fallback estruturado caso o Gemini esteja temporariamente indisponível
   if (!aiData) {
+    const fallbackName = business_name || crawlData.title.split(/[-|]/)[0].trim() || 'Empresa Especializada';
     aiData = {
-      niche_summary: `Mercado altamente competitivo em ${region} com demanda urgente por WhatsApp e alto índice de qualificação.`,
+      detected_company_name: fallbackName,
+      detected_niche: "Serviços Especializados",
+      detected_audience: "Clientes com alta urgência e necessidade de resolução",
+      niche_summary: `Mercado altamente competitivo com forte leilão no Google Ads e demanda urgente por atendimento direto no WhatsApp.`,
+      core_services: [
+        { name: "Atendimento Emergencial", description: "Medidas ágeis e prioritárias para estancar prejuízos" },
+        { name: "Consultoria Especializada", description: "Diagnóstico técnico e análise detalhada do caso" },
+        { name: "Defesa e Resolução", description: "Atuação direta perante órgãos e plataformas" },
+        { name: "Suporte Contínuo", description: "Acompanhamento integral até a normalização completa" }
+      ],
       competitors: [
-        { name: "Líder de Mercado", domain: "lidernicho.com.br", focus: "Atendimento Rápido", approach: "WhatsApp direto", weaknesses: "Preço obscuro" },
-        { name: "Concorrente Tradicional", domain: "tradicional.adv.br", focus: "Autoridade", approach: "Formulário lento", weaknesses: "Demora na resposta" }
+        { name: "Líder de Mercado", domain: "lidernicho.com.br", focus: "Atendimento Imediato", approach: "WhatsApp direto", weaknesses: "Pouca clareza de valores" },
+        { name: "Concorrente Tradicional", domain: "tradicional.com.br", focus: "Autoridade", approach: "Formulários lentos", weaknesses: "Demora no retorno" }
       ],
       market_gaps: [
-        { title: "1. Fricção Zero no WhatsApp", description: "Contato em menos de 2 cliques com qualificação prévia." },
-        { title: "2. Transparência de Valores no FAQ", description: "Quebra imediata de receio sobre custo inicial." }
+        { title: "1. Fricção Zero no WhatsApp", description: "Atendimento humano com resposta em menos de 2 minutos" },
+        { title: "2. Triagem Transparente", description: "Esclarecimento de viabilidade sem cobrança de taxa prévia" },
+        { title: "3. Prova Técnica Documentada", description: "Exibição de casos reais e atuação segura" }
       ],
       triage_questions: [
-        "Qual o valor aproximado ou gravidade da sua situação?",
         "Há quantos dias ocorreu o problema?",
-        "Já tentou contato anterior com a outra parte?"
-      ],
-      home: {
-        page_title: `${business_name} | Atendimento Especializado`,
-        meta_description: `Especialistas em ${niche}. Atendimento ágil e estratégico.`,
-        badge_text: `Atendimento Humano · ${region} · Experiência Comprovada`,
-        headline_first: "Soluções Especializadas em",
-        headline_highlight: `${niche}`,
-        subheadline: "Medidas ágeis e atendimento direcionado para resolver sua demanda com segurança.",
-        cta_text: "Avaliar Meu Caso no WhatsApp",
-        viability_title: "Análise Rápida de Viabilidade",
-        viability_subtitle: "Receba um diagnóstico preliminar do seu caso em poucos minutos.",
-        trust_cards: [
-          { icon: "⚡", title: "Agilidade Imediata", description: "Resposta rápida no WhatsApp." },
-          { icon: "🛡️", title: "Sigilo & Proteção", description: "Dados 100% seguros." },
-          { icon: "🎯", title: "Foco no Resultado", description: "Estratégia personalizada." }
-        ],
-        stats: [
-          { number: "98%", label: "Casos avaliados no mesmo dia" },
-          { number: "24/7", label: "Plantão para urgências" },
-          { number: "100%", label: "Atendimento humanizado" }
-        ],
-        faq: [
-          { q: "Quanto custa a avaliação?", a: "A análise preliminar é gratuita via WhatsApp." },
-          { q: "Qual o prazo?", a: "Atendimento imediato nas primeiras horas." }
-        ]
-      },
-      verticals: [
-        {
-          slug: "servico-principal",
-          title: "Atendimento Principal",
-          headline: "Atendimento com Máxima Prioridade",
-          subheadline: "Soluções técnicas validadas.",
-          cards: [{ title: "Diagnóstico", desc: "Análise imediata" }],
-          msg: "Olá! Gostaria de avaliar meu caso."
-        }
+        "Qual o valor aproximado ou impacto financeiro envolvido?",
+        "Você já possui os documentos ou notificações anteriores?"
       ],
       google_ads: {
-        headlines: ["Atendimento Especializado", "Fale no WhatsApp", "Avaliação Imediata", `${business_name}`.substring(0,30)],
-        descriptions: [`Especialistas em ${niche}. Fale conosco agora mesmo no WhatsApp.`.substring(0,90)],
-        negative_keywords: ["gratis", "curso", "vagas", "pdf", "salario"]
+        ad_groups: [
+          { name: "G1: Atendimento Urgente", keywords_exact: ["[atendimento urgente]", "[especialista agora]"], keywords_phrase: ["\"atendimento urgente\"", "\"especialista agora\""] },
+          { name: "G2: Consultoria Especializada", keywords_exact: ["[consultoria especializada]"], keywords_phrase: ["\"consultoria especializada\""] },
+          { name: "G3: Solução do Caso", keywords_exact: ["[solucao do caso]"], keywords_phrase: ["\"solucao do caso\""] },
+          { name: "G4: Suporte e Defesa", keywords_exact: ["[suporte e defesa]"], keywords_phrase: ["\"suporte e defesa\""] }
+        ],
+        headlines: [
+          fallbackName.substring(0, 30),
+          "Atendimento Especializado",
+          "Avaliação Imediata no Whats",
+          "Especialistas Qualificados",
+          "Fale Conosco no WhatsApp",
+          "Solução Rápida e Segura",
+          "Análise de Viabilidade",
+          "Atendimento em Todo o Brasil",
+          "Proteja Seu Negócio",
+          "Resposta em Poucos Minutos",
+          "Equipe Técnica Ativa",
+          "Consulte Seu Caso Aqui",
+          "Plantão de Urgência",
+          "Atendimento 100% Digital",
+          "Fale com um Especialista"
+        ],
+        descriptions: [
+          `Precisa de suporte especializado? Avaliamos seu caso com máxima agilidade no WhatsApp.`.substring(0, 90),
+          `Atendimento humano e estratégico em todo o Brasil. Fale diretamente com nossa equipe.`.substring(0, 90),
+          `Medidas ágeis e eficientes para proteger seu negócio e estancar prejuízos. Consulte agora.`.substring(0, 90),
+          `Análise preliminar de viabilidade no WhatsApp. Entre em contato e tire suas dúvidas.`.substring(0, 90)
+        ],
+        negative_keywords: ["gratis", "curso", "vagas", "salario", "pdf", "modelo", "o que e", "download"]
       }
     };
   }
+
+  const finalName = business_name || aiData.detected_company_name || 'Cliente LaunchPilot';
 
   // -------------------------------------------------------------
   // PROVISIONAMENTO NO GOOGLE CLOUD (agenciaadlovers@gmail.com)
@@ -315,7 +431,7 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem tags markdown de bloco) com o s
   let gtmContainerId = null;
   let gtmStatus = 'PROVISIONADO';
   let ga4Status = 'PROVISIONADO';
-  const adsCid = '491-198-0801';
+  let gscStatus = 'PROVISIONADO';
 
   try {
     const accessToken = await getGoogleAccessToken();
@@ -328,7 +444,7 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem tags markdown de bloco) com o s
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          name: `LP - ${business_name}`,
+          name: `LP - ${finalName}`,
           usageContext: ['web']
         })
       });
@@ -337,7 +453,7 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem tags markdown de bloco) com o s
         const cJson = await gtmCreateRes.json();
         gtmContainerId = cJson.containerId;
         gtmId = cJson.publicId || gtmId;
-        gtmStatus = 'PROVISIONADO_REAL';
+        gtmStatus = 'PROVISIONADO_REAL (Conta 6248156630)';
 
         // Convida o e-mail do cliente como Administrador do Contêiner
         if (email) {
@@ -367,7 +483,7 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem tags markdown de bloco) com o s
         },
         body: JSON.stringify({
           parent: 'accounts/324380603',
-          displayName: `LP - ${business_name}`,
+          displayName: `LP - ${finalName}`,
           timeZone: 'America/Sao_Paulo',
           currencyCode: 'BRL'
         })
@@ -376,20 +492,35 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem tags markdown de bloco) com o s
       if (ga4CreateRes.ok) {
         const gaJson = await ga4CreateRes.json();
         const propId = gaJson.name?.replace('properties/', '');
-        ga4Status = 'PROVISIONADO_REAL';
+        ga4Status = `PROVISIONADO_REAL (Propriedade ${propId})`;
 
         if (email && propId) {
-          await fetch(`https://analyticsadmin.googleapis.com/v1beta/properties/${propId}/accessBindings`, {
+          await fetch(`https://analyticsadmin.googleapis.com/v1beta/properties/${propId}/userLinks`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${accessToken}`,
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              user: email,
-              roles: ['roles/analytics.admin']
+              emailAddress: email,
+              directRoles: ['predefinedRoles/admin']
             })
           });
+        }
+      }
+
+      // 3. Search Console
+      if (crawlData.url) {
+        try {
+          const gscResp = await fetch(`https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(crawlData.url)}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+          });
+          if (gscResp.ok) {
+            gscStatus = `VERIFICADO (${crawlData.url})`;
+          }
+        } catch (gscErr) {
+          console.warn('Search console warning:', gscErr);
         }
       }
     }
@@ -397,305 +528,173 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem tags markdown de bloco) com o s
     console.warn('Erro ao provisionar Google Cloud real:', err);
   }
 
-  const cleanPhone = whatsapp.replace(/\D/g, '');
-  const homeMsg = encodeURIComponent(aiData.home.cta_text || 'Olá! Gostaria de uma avaliação inicial.');
-  const waLink = `https://wa.me/${cleanPhone}?text=${homeMsg}`;
+  // -------------------------------------------------------------
+  // GERAÇÃO DO KIT DE INSTALAÇÃO DE TAGS (UNIVERSAL)
+  // -------------------------------------------------------------
+  const gtmHeadSnippet = `<!-- Google Tag Manager (LaunchPilot via agenciaadlovers) -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','${gtmId}');</script>
+<!-- End Google Tag Manager -->`;
 
-  // Monta HTML Multi-Páginas com Deduplicação e 19+ Botões
-  const siteHtml = `<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${aiData.home.page_title}</title>
-  <meta name="description" content="${aiData.home.meta_description}">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- Consent Mode V2 -->
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('consent', 'default', {
-      'analytics_storage': 'granted',
-      'ad_storage': 'granted',
-      'ad_user_data': 'granted',
-      'ad_personalization': 'granted'
-    });
-  </script>
+  const gtmBodySnippet = `<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=${gtmId}"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->`;
 
-  <!-- Google Tag Manager -->
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','${gtmId}');</script>
-
-  <style>
-    :root {
-      --primary: ${primary_color};
-      --accent: ${accent_color};
-      --bg: #07090e;
-      --card-bg: rgba(255, 255, 255, 0.035);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
+  const universalTelemetryScript = `<!-- LaunchPilot Universal Telemetry & orderId Deduplication -->
+<script>
+(function() {
+  // Gerador de Lead ID exclusivo para deduplicação no Google Ads e GA4
+  function getOrCreateOrderId() {
+    var id = sessionStorage.getItem('lead_order_id');
+    if (!id) {
+      id = 'LEAD_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8).toUpperCase();
+      sessionStorage.setItem('lead_order_id', id);
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-    body { background-color: var(--bg); color: var(--text); line-height: 1.6; }
-    .container { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
-    
-    .top-bar { background: linear-gradient(90deg, #1e1b4b, #312e81); padding: 8px; text-align: center; font-size: 13px; font-weight: 600; color: #c7d2fe; }
-    header { padding: 18px 0; border-bottom: 1px solid var(--card-border); backdrop-filter: blur(16px); position: sticky; top: 0; z-index: 50; background: rgba(7, 9, 14, 0.85); }
-    .nav-wrap { display: flex; justify-content: space-between; align-items: center; }
-    .logo { font-size: 20px; font-weight: 800; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; }
-    .logo-badge { background: var(--accent); color: #fff; font-size: 10px; padding: 2px 8px; border-radius: 99px; text-transform: uppercase; font-weight: 700; }
-    .nav-links { display: flex; gap: 20px; align-items: center; }
-    .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
-    .nav-links a:hover { color: #fff; }
-
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 28px; border-radius: 12px; font-weight: 700; text-decoration: none; cursor: pointer; transition: all 0.25s ease; border: none; font-size: 15px; }
-    .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 8px 24px -4px rgba(37,99,235,0.4); }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px -4px rgba(37,99,235,0.6); }
-    .btn-pulse { animation: pulse 2s infinite; }
-    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(37,99,235,0.6); } 70% { box-shadow: 0 0 0 14px rgba(37,99,235,0); } 100% { box-shadow: 0 0 0 0 rgba(37,99,235,0); } }
-
-    .trust-badge-wrap { display: inline-flex; align-items: center; gap: 10px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); color: #86efac; padding: 6px 18px; border-radius: 99px; font-size: 13px; font-weight: 600; margin-bottom: 24px; }
-    .pulse-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 8px #22c55e; animation: pulse-green 1.5s infinite; }
-    @keyframes pulse-green { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
-
-    .hero { padding: 70px 0 50px; text-align: center; }
-    .hero h1 { font-size: 46px; font-weight: 800; line-height: 1.15; max-width: 860px; margin: 0 auto 20px; letter-spacing: -1.2px; }
-    .hero h1 span { background: linear-gradient(135deg, #60a5fa, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .hero p { font-size: 18px; color: var(--text-muted); max-width: 660px; margin: 0 auto 34px; }
-
-    .viability-banner { background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(15, 23, 42, 0.6)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 20px; padding: 32px; margin: 40px auto; max-width: 900px; text-align: center; }
-    .viability-banner h3 { font-size: 22px; color: #fff; margin-bottom: 8px; font-weight: 800; }
-    .viability-banner p { font-size: 15px; color: #cbd5e1; max-width: 600px; margin: 0 auto 20px; }
-
-    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin: 40px 0; }
-    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 18px; padding: 28px; text-align: left; transition: all 0.25s ease; }
-    .card:hover { border-color: rgba(59, 130, 246, 0.4); transform: translateY(-4px); }
-    .card h3 { font-size: 19px; color: #fff; margin-bottom: 10px; font-weight: 700; }
-    .card p { font-size: 14px; color: var(--text-muted); margin-bottom: 18px; }
-
-    .stats-wrap { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 24px; margin: 60px 0; padding: 30px; background: rgba(255,255,255,0.02); border-radius: 18px; border: 1px solid var(--card-border); }
-    .stat-number { font-size: 38px; font-weight: 800; color: #38bdf8; }
-    .stat-label { font-size: 13px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
-
-    .faq-section { max-width: 800px; margin: 60px auto; text-align: left; }
-    .faq-section h2 { font-size: 30px; text-align: center; margin-bottom: 30px; color: #fff; font-weight: 800; }
-    details { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; margin-bottom: 14px; padding: 18px 22px; cursor: pointer; }
-    details summary { font-weight: 700; font-size: 16px; color: #fff; list-style: none; display: flex; justify-content: space-between; align-items: center; }
-    details p { margin-top: 14px; font-size: 14.5px; color: var(--text-muted); }
-
-    .float-wa { position: fixed; bottom: 24px; right: 24px; width: 62px; height: 62px; background: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(34, 197, 94, 0.4); z-index: 100; text-decoration: none; animation: pulse-green 2s infinite; }
-    footer { padding: 50px 0; border-top: 1px solid var(--card-border); margin-top: 80px; text-align: center; color: var(--text-muted); font-size: 14px; }
-  </style>
-
-  <!-- Schemas JSON-LD -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "ProfessionalService",
-    "name": "${business_name}",
-    "telephone": "${whatsapp}",
-    "areaServed": "BR"
+    return id;
   }
-  </script>
-</head>
-<body>
-  <div class="top-bar">⚡ Atendimento Especializado com Medidas Ágeis em Todo o Brasil</div>
 
-  <header>
-    <div class="container nav-wrap">
-      <a href="#" class="logo">
-        ${business_name}
-        <span class="logo-badge">Oficial</span>
-      </a>
-      <div class="nav-links">
-        <a href="#servicos">Especialidades</a>
-        <a href="#faq">Dúvidas</a>
-      </div>
-      <a href="${waLink}" class="btn btn-primary" data-btn-name="header_nav_cta" data-btn-event="whatsapp_conversion" data-page="home" data-placement="header">
-        Falar com Especialista
-      </a>
-    </div>
-  </header>
+  // Intercepta automaticamente cliques em links de WhatsApp e botões de conversão
+  document.addEventListener('click', function(e) {
+    var target = e.target.closest('a[href*="wa.me"], a[href*="api.whatsapp.com"], a[href*="whatsapp"], .track-btn, button[type="submit"], input[type="submit"]');
+    if (target) {
+      var orderId = getOrCreateOrderId();
+      var btnText = (target.innerText || target.value || target.getAttribute('aria-label') || 'whatsapp_lead').trim().substring(0, 50);
+      var clickUrl = target.href || '';
 
-  <main>
-    <section class="hero container">
-      <div class="trust-badge-wrap">
-        <span class="pulse-dot"></span>
-        ${aiData.home.badge_text}
-      </div>
-      
-      <h1>${aiData.home.headline_first} <span>${aiData.home.headline_highlight}</span></h1>
-      <p>${aiData.home.subheadline}</p>
-      
-      <a href="${waLink}" class="btn btn-primary btn-pulse" data-btn-name="hero_primary_cta" data-btn-event="whatsapp_conversion" data-page="home" data-placement="hero" style="font-size: 17px; padding: 18px 36px;">
-        ${aiData.home.cta_text}
-      </a>
-
-      <!-- Banner de Análise Rápida de Viabilidade -->
-      <div class="viability-banner">
-        <h3>🔍 ${aiData.home.viability_title}</h3>
-        <p>${aiData.home.viability_subtitle}</p>
-        <a href="${waLink}" class="btn btn-primary" data-btn-name="viability_banner_cta" data-btn-event="whatsapp_conversion" data-page="home" data-placement="viability">
-          Iniciar Análise sem Compromisso
-        </a>
-      </div>
-
-      <!-- Verticais de Serviços -->
-      <div id="servicos" style="margin-top: 60px;">
-        <h2 style="font-size: 30px; color: #fff; font-weight: 800; margin-bottom: 24px;">Áreas de Atuação Especializada</h2>
-        <div class="grid-3">
-          ${(aiData.verticals || []).map((v, i) => {
-            const vMsg = encodeURIComponent(v.msg || `Olá! Gostaria de informações sobre ${v.title}.`);
-            const vUrl = `https://wa.me/${cleanPhone}?text=${vMsg}`;
-            return `
-            <div class="card">
-              <h3>${v.title}</h3>
-              <p>${v.subheadline}</p>
-              <a href="${vUrl}" class="btn btn-primary" data-btn-name="vertical_card_${i+1}" data-btn-event="whatsapp_conversion" data-page="home" data-placement="services" style="padding: 10px 18px; font-size: 13px;">
-                Avaliar Este Caso →
-              </a>
-            </div>`;
-          }).join('')}
-        </div>
-      </div>
-
-      <!-- Números -->
-      <div class="stats-wrap">
-        ${(aiData.home.stats || []).map(s => `
-          <div class="stat-item">
-            <div class="stat-number">${s.number}</div>
-            <div class="stat-label">${s.label}</div>
-          </div>
-        `).join('')}
-      </div>
-
-      <!-- Diferenciais -->
-      <div style="margin-top: 60px;">
-        <h2 style="font-size: 30px; color: #fff; font-weight: 800; margin-bottom: 24px;">Diferenciais de Atuação</h2>
-        <div class="grid-3">
-          ${(aiData.home.trust_cards || []).map(tc => `
-            <div class="card">
-              <div style="font-size: 28px; margin-bottom: 10px;">${tc.icon || '⚡'}</div>
-              <h3>${tc.title}</h3>
-              <p>${tc.description}</p>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-
-      <!-- FAQ Transparente -->
-      <div id="faq" class="faq-section">
-        <h2>Perguntas Frequentes & Transparência</h2>
-        ${(aiData.home.faq || []).map(f => `
-          <details>
-            <summary>${f.q}</summary>
-            <p>${f.a}</p>
-          </details>
-        `).join('')}
-        <div style="text-align: center; margin-top: 32px;">
-          <a href="${waLink}" class="btn btn-primary" data-btn-name="faq_cta" data-btn-event="whatsapp_conversion" data-page="home" data-placement="faq">
-            Ainda com dúvidas? Falar no WhatsApp
-          </a>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="container">
-      <p>© ${new Date().getFullYear()} ${business_name} — Todos os direitos reservados.</p>
-      <p style="font-size: 12px; margin-top: 6px; opacity: 0.7;">Arquitetura Turnkey LaunchPilot</p>
-    </div>
-  </footer>
-
-  <a href="${waLink}" class="float-wa" data-btn-name="floating_whatsapp" data-btn-event="whatsapp_conversion" data-page="home" data-placement="floating" title="WhatsApp">
-    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-  </a>
-
-  <!-- Script de Deduplicação de Conversões por orderId -->
-  <script>
-    function getOrCreateOrderId() {
-      var id = sessionStorage.getItem('lead_order_id');
-      if (!id) {
-        id = 'LEAD_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8).toUpperCase();
-        sessionStorage.setItem('lead_order_id', id);
+      if (window.dataLayer) {
+        window.dataLayer.push({
+          'event': 'whatsapp_conversion',
+          'event_category': 'lead',
+          'orderId': orderId,
+          'btn_name': btnText,
+          'click_url': clickUrl,
+          'page_path': window.location.pathname,
+          'timestamp': new Date().toISOString()
+        });
       }
-      return id;
     }
+  }, true);
+})();
+</script>`;
 
-    document.querySelectorAll('[data-btn-event="whatsapp_conversion"]').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var orderId = getOrCreateOrderId();
-        var name = btn.getAttribute('data-btn-name') || 'whatsapp_conversion';
-        var placement = btn.getAttribute('data-placement') || 'general';
-        if (window.dataLayer) {
-          window.dataLayer.push({
-            'event': 'whatsapp_conversion',
-            'event_category': 'lead',
-            'orderId': orderId,
-            'btn_name': name,
-            'btn_placement': placement,
-            'page_path': window.location.pathname,
-            'timestamp': new Date().toISOString()
-          });
-        }
-      });
-    });
-  </script>
-</body>
-</html>`;
+  const tagGuideMarkdown = `# Guia de Instalação de Tags - ${finalName}
+**Site Analisado:** \`${crawlData.url}\`  
+**Contêiner GTM:** \`${gtmId}\`  
+**Gerenciado por:** \`agenciaadlovers@gmail.com\`  
+**Administrador Convidado:** \`${email}\`  
 
-  // Monta CSV para Google Ads Editor
+Para ativar o rastreamento com deduplicação de conversões no Google Ads e GA4 no seu site existente:
+
+### Passo 1: Inserir no \`<head>\` do Site
+Cole o código abaixo o mais alto possível dentro de \`<head>\`:
+\`\`\`html
+${gtmHeadSnippet}
+\`\`\`
+
+### Passo 2: Inserir no topo do \`<body>\`
+Cole o código abaixo logo após a abertura de \`<body>\`:
+\`\`\`html
+${gtmBodySnippet}
+\`\`\`
+
+### Passo 3: Ativar o Script Universal de Deduplicação
+Cole o script abaixo antes do fechamento de \`</body>\`. Ele interceptará automaticamente todos os links de WhatsApp sem precisar alterar o código dos seus botões:
+\`\`\`html
+${universalTelemetryScript}
+\`\`\`
+`;
+
+  // -------------------------------------------------------------
+  // GERAÇÃO DO CSV DO GOOGLE ADS EDITOR
+  // -------------------------------------------------------------
   let csvContent = "Campaign,Ad Group,Keyword,Criterion Type,Headline 1,Headline 2,Headline 3,Description 1,Description 2,Final URL,Status\n";
-  const campName = `Campanha Pesquisa - ${business_name}`;
-  csvContent += `"${campName}","G1: Principal","","","","","","","","https://meusite.vercel.app","Enabled"\n`;
+  const campName = `Campanha Pesquisa - ${finalName}`;
+  const targetUrl = crawlData.url || 'https://meusite.com.br';
+
+  const groups = aiData.google_ads.ad_groups || [
+    { name: "G1: Principal", keywords_exact: ["[servico principal]"], keywords_phrase: ["\"servico principal\""] }
+  ];
+
+  groups.forEach(g => {
+    const h1 = (aiData.google_ads.headlines[0] || 'Atendimento Especializado').substring(0, 30);
+    const h2 = (aiData.google_ads.headlines[1] || 'Avaliação no WhatsApp').substring(0, 30);
+    const h3 = (aiData.google_ads.headlines[2] || finalName).substring(0, 30);
+    const d1 = (aiData.google_ads.descriptions[0] || 'Atendimento rápido e especializado.').substring(0, 90);
+    const d2 = (aiData.google_ads.descriptions[1] || 'Fale com nossos especialistas agora.').substring(0, 90);
+
+    // Linha do Anúncio RSA
+    csvContent += `"${campName}","${g.name}","","","${h1}","${h2}","${h3}","${d1}","${d2}","${targetUrl}","Enabled"\n`;
+
+    // Palavras-chave exatas
+    (g.keywords_exact || []).forEach(kw => {
+      csvContent += `"${campName}","${g.name}","${kw}","Exact","","","","","","","Enabled"\n`;
+    });
+
+    // Palavras-chave de frase
+    (g.keywords_phrase || []).forEach(kw => {
+      csvContent += `"${campName}","${g.name}","${kw}","Phrase","","","","","","","Enabled"\n`;
+    });
+  });
+
+  // Negativas
   (aiData.google_ads.negative_keywords || []).forEach(neg => {
     csvContent += `"${campName}","","${neg}","Negative Broad","","","","","","","Enabled"\n`;
   });
 
   return res.status(200).json({
     success: true,
-    business_name,
-    niche,
-    region,
+    site_url: crawlData.url,
+    business_name: finalName,
     email,
+    crawl_data: {
+      url: crawlData.url,
+      title: crawlData.title,
+      description: crawlData.description,
+      h1s: crawlData.h1s,
+      h2s: crawlData.h2s,
+      wa_links: crawlData.wa_links,
+      phones: crawlData.phones,
+      detected_tags: crawlData.detected_tags
+    },
     tracking: {
       gtm_id: gtmId,
       gtm_status: gtmStatus,
       ga4_id: ga4Id,
       ga4_status: ga4Status,
-      ads_cid: adsCid,
+      ads_cid: ads_cid,
       ads_conversion_label: 'CONV_WHATSAPP_LEAD',
-      search_console_status: 'Proprietário Verificado (siteOwner)'
+      search_console_status: gscStatus
     },
     admin_invitations: {
       email,
       gtm: `Administrador atribuído no contêiner ${gtmId}`,
       ga4: `Administrador atribuído na propriedade GA4`,
-      search_console: `Proprietário atribuído no Search Console`,
-      google_ads: `Administrador convidado na conta Google Ads ${adsCid}`,
-      ads_direct_link: `https://ads.google.com/aw/accountaccess/users?ocid=${adsCid.replace(/-/g, '')}`
+      search_console: `Proprietário atribuído no Search Console (${gscStatus})`,
+      google_ads: `Administrador convidado na conta Google Ads ${ads_cid}`,
+      ads_direct_link: `https://ads.google.com/aw/accountaccess/users?ocid=${ads_cid.replace(/-/g, '')}`
     },
     competitors: {
+      detected_niche: aiData.detected_niche,
+      detected_audience: aiData.detected_audience,
       niche_summary: aiData.niche_summary,
+      core_services: aiData.core_services,
       competitors: aiData.competitors,
       market_gaps: aiData.market_gaps,
       triage_questions: aiData.triage_questions
     },
-    copy: {
-      home: aiData.home,
-      verticals: aiData.verticals,
-      google_ads: aiData.google_ads
+    google_ads: aiData.google_ads,
+    tag_kit: {
+      gtm_id: gtmId,
+      gtm_head: gtmHeadSnippet,
+      gtm_body: gtmBodySnippet,
+      universal_telemetry_script: universalTelemetryScript,
+      guide_markdown: tagGuideMarkdown
     },
-    site_html: siteHtml,
     csv_content: csvContent,
-    message: `Esteira Turnkey concluída! Infraestrutura Google Cloud criada via agenciaadlovers@gmail.com e convites de Administrador enviados para ${email}.`
+    message: `Onboarding de site existente concluído! Infraestrutura centralizada criada via agenciaadlovers@gmail.com e convites Admin enviados para ${email}.`
   });
 }

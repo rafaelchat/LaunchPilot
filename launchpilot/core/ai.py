@@ -1,5 +1,6 @@
 import os
 import json
+import time
 import urllib.request
 import urllib.error
 import re
@@ -8,8 +9,8 @@ from typing import Dict, Any, List, Optional
 class AIEngine:
     """
     Motor de Inteligencia Artificial para LaunchPilot powered by Google Gemini.
-    Responsavel por pesquisa de concorrencia, criacao de copy multi-paginas
-    e geracao de campanhas validadas para Google Ads.
+    Responsavel por analise profunda de sites existentes, espionagem de concorrentes,
+    auditoria de conversao e geracao de campanhas validadas para Google Ads.
     """
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or os.getenv("GEMINI_API_KEY")
@@ -22,12 +23,12 @@ class AIEngine:
                             self.api_key = line.strip().split("=", 1)[1]
                             break
         
-        # gemini-3.8-flash e o modelo atual de mais alta performance e velocidade
         self.models_priority = [
             "gemini-3.8-flash",
             "gemini-3.5-flash",
+            "gemini-flash-latest",
             "gemini-3.1-flash-lite",
-            "gemini-flash-latest"
+            "gemini-2.5-pro"
         ]
 
     def generate(self, prompt: str) -> str:
@@ -49,19 +50,24 @@ class AIEngine:
                 headers={"Content-Type": "application/json"},
                 method="POST"
             )
-            try:
-                with urllib.request.urlopen(req, timeout=40) as resp:
-                    data = json.loads(resp.read().decode("utf-8"))
-                    text = data["candidates"][0]["content"]["parts"][0]["text"]
-                    return text
-            except urllib.error.HTTPError as e:
-                last_error = e
-                if e.code in (404, 503, 429):
+            for attempt in range(2):
+                try:
+                    with urllib.request.urlopen(req, timeout=40) as resp:
+                        data = json.loads(resp.read().decode("utf-8"))
+                        text = data["candidates"][0]["content"]["parts"][0]["text"]
+                        return text
+                except urllib.error.HTTPError as e:
+                    last_error = e
+                    if e.code in (503, 429):
+                        time.sleep(2 * (attempt + 1))
+                        continue
+                    if e.code == 404:
+                        break
+                    raise
+                except Exception as e:
+                    last_error = e
+                    time.sleep(1)
                     continue
-                raise
-            except Exception as e:
-                last_error = e
-                continue
 
         raise RuntimeError(f"Falha ao gerar conteudo com Gemini nos modelos disponiveis: {last_error}")
 
@@ -76,255 +82,101 @@ class AIEngine:
                 return json.loads(match.group(0))
             raise ValueError(f"Resposta do Gemini nao pode ser convertida para JSON: {text[:200]}...")
 
-    def analyze_competitors(self, niche: str, client_name: str, region: str = "Brasil") -> Dict[str, Any]:
+    def analyze_existing_site(self, site_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Realiza analise de mercado e espionagem competitiva para qualquer nicho.
+        Lê e audita os dados reais de um site existente e extrai:
+        - Nome do negócio, nicho e público-alvo
+        - As 3 a 4 verticais específicas de serviços oferecidos
+        - Diagnóstico de pontos fortes e gargalos de conversão
+        - Estrutura completa de Google Ads (4 grupos segmentados, RSAs, palavras e negativas)
         """
+        sample_text = site_data.get('clean_text_sample', '')[:3500]
         prompt = f"""
-        Atue como Especialista Senior em Inteligencia de Trafego Pago, Google Ads e Engenharia Reversa de Concorrentes.
-        Cliente: "{client_name}"
-        Nicho de Atuacao: "{niche}"
-        Regiao / Praca Alvo: "{region}"
+        Você é o Diretor Técnico de CRO e Google Ads da agência Adlovers.
+        Foi fornecido o conteúdo raspado do site de um cliente:
 
-        Faca uma pesquisa aprofundada de concorrentes que anunciam no Google Ads neste nicho no Brasil.
-        Identifique o padrao das ofertas, os diferenciais explorados, as fraquezas e as maiores brechas de mercado.
+        URL: {site_data.get('url')}
+        Título: {site_data.get('title')}
+        Meta Description: {site_data.get('description')}
+        Títulos H1: {site_data.get('h1s')}
+        Títulos H2: {site_data.get('h2s')}
+        Texto do Site: \"{sample_text}\"
 
-        Retorne ESTRITAMENTE um objeto JSON valido no seguinte formato exato (sem texto antes ou depois):
+        Faça a auditoria e engenharia reversa completa deste site.
+        Retorne ESTRITAMENTE um objeto JSON válido (sem tags markdown):
         {{
-            "niche_summary": "Breve resumo do cenario competitivo e ticket medio do servico",
-            "competitors": [
+            "company_name": "Nome da empresa identificado no site",
+            "niche": "Nicho exato de atuação",
+            "region": "Região atendida (ex: Brasil Todo)",
+            "core_offer": "Oferta principal identificada",
+            "target_audience": "Perfil do cliente ideal",
+            "detected_services": [
                 {{
-                    "name": "Nome do concorrente 1 (empresa/escritorio real ou arquetipo lider de leilao)",
-                    "domain": "dominio.com.br",
-                    "primary_focus": "Foco central da oferta no Google Ads",
-                    "approach": "Como abordam o cliente (gatilhos, urgencia, garantias)",
-                    "weaknesses": "Ponto fraco identificado (ex: formulario lento, sem preco claro, site poluido)"
+                    "title": "Serviço / Vertical 1",
+                    "description": "Explicação do serviço detectado no site",
+                    "target_pain": "Dor que este serviço resolve"
                 }},
                 {{
-                    "name": "Concorrente 2",
-                    "domain": "dominio2.com.br",
-                    "primary_focus": "Foco da oferta",
-                    "approach": "Abordagem comercial",
-                    "weaknesses": "Ponto fraco"
+                    "title": "Serviço / Vertical 2",
+                    "description": "Explicação",
+                    "target_pain": "Dor"
                 }},
                 {{
-                    "name": "Concorrente 3",
-                    "domain": "dominio3.com.br",
-                    "primary_focus": "Foco da oferta",
-                    "approach": "Abordagem comercial",
-                    "weaknesses": "Ponto fraco"
+                    "title": "Serviço / Vertical 3",
+                    "description": "Explicação",
+                    "target_pain": "Dor"
                 }},
                 {{
-                    "name": "Concorrente 4",
-                    "domain": "dominio4.com.br",
-                    "primary_focus": "Foco da oferta",
-                    "approach": "Abordagem comercial",
-                    "weaknesses": "Ponto fraco"
-                }},
-                {{
-                    "name": "Concorrente 5",
-                    "domain": "dominio5.com.br",
-                    "primary_focus": "Foco da oferta",
-                    "approach": "Abordagem comercial",
-                    "weaknesses": "Ponto fraco"
+                    "title": "Serviço / Vertical 4",
+                    "description": "Explicação",
+                    "target_pain": "Dor"
                 }}
             ],
-            "market_gaps": [
-                {{
-                    "title": "1. Brecha / Oportunidade 1",
-                    "description": "Explicacao detalhada de como explorar essa brecha no site e nos anuncios."
-                }},
-                {{
-                    "title": "2. Brecha / Oportunidade 2",
-                    "description": "Explicacao..."
-                }},
-                {{
-                    "title": "3. Brecha / Oportunidade 3",
-                    "description": "Explicacao..."
-                }},
-                {{
-                    "title": "4. Brecha / Oportunidade 4",
-                    "description": "Explicacao..."
-                }}
-            ],
-            "verticals": [
-                {{
-                    "slug": "slug-da-vertical-1",
-                    "title": "Nome do Servico / Sub-nicho 1",
-                    "pain_point": "Principal dor deste cliente especifico"
-                }},
-                {{
-                    "slug": "slug-da-vertical-2",
-                    "title": "Nome do Servico / Sub-nicho 2",
-                    "pain_point": "Principal dor deste cliente especifico"
-                }},
-                {{
-                    "slug": "slug-da-vertical-3",
-                    "title": "Nome do Servico / Sub-nicho 3",
-                    "pain_point": "Principal dor deste cliente especifico"
-                }}
-            ],
-            "negative_keywords": [
-                "gratis", "de graca", "curso", "salario", "vagas", "o que e", "pdf",
-                "significado", "trabalhe conosco", "concurso", "download", "faculdade",
-                "apostila", "login", "reclame aqui", "telefone 0800", "tutorial"
-            ],
-            "whatsapp_triage_questions": [
-                "Pergunta 1 para qualificar o lead imediatamente no WhatsApp",
-                "Pergunta 2 sobre a gravidade/valor da demanda",
-                "Pergunta 3 sobre prazo/urgencia"
-            ]
-        }}
-        """
-        res_text = self.generate(prompt)
-        return self._extract_json(res_text)
-
-    def generate_full_client_kit(self, niche: str, business_name: str, whatsapp: str, region: str = "Brasil") -> Dict[str, Any]:
-        """
-        Gera a estrutura completa de copy para:
-        - Pagina Principal (Home)
-        - 3 Sub-paginas de Verticais Especializadas
-        - Anuncios RSA validados para Google Ads
-        - FAQ com transparencia e quebra de objecoes
-        """
-        prompt = f"""
-        Voce e o Diretor de Copywriting e Conversao de maior autoridade no mercado brasileiro.
-        Empresa: "{business_name}"
-        Nicho: "{niche}"
-        WhatsApp: "{whatsapp}"
-        Regiao: "{region}"
-
-        Crie o kit completo de lancamento seguindo as melhores praticas de usabilidade, etica/compliance,
-        transparencia de preco (FAQ que explica como funciona a cobranca sem assustar) e alto indice de qualidade no Google Ads.
-
-        Regras de estilo:
-        - Hero com badge de confianca: 'Atendimento Humano · {region} · Experiencia Comprovada'
-        - Banner de Analise Rapida de Viabilidade / Triagem
-        - Copy fluida, sem jargoes inuteis, focada em resolver o problema com agilidade
-        - 3 Verticais especificas para paginas secundarias
-        - Titulos de anuncios RSA com no maximo 30 caracteres
-        - Descricoes de anuncios RSA com no maximo 90 caracteres
-
-        Retorne ESTRITAMENTE um objeto JSON valido com o seguinte esquema:
-        {{
-            "home": {{
-                "page_title": "Titulo SEO da Home (max 65 chars)",
-                "meta_description": "Meta description persuasiva (max 155 chars)",
-                "badge_text": "Atendimento Humano · {region} · Experiencia Comprovada",
-                "headline_first": "Pergunta ou afirmacao de impacto inicial",
-                "headline_highlight": "Palavras finais em destaque/gradiente",
-                "subheadline": "Explicacao clara da solucao, agilidade e autoridade (max 30 palavras)",
-                "cta_primary": "Avaliar Meu Caso Agora",
-                "viability_banner": {{
-                    "title": "Analise Rapida de Viabilidade",
-                    "subtitle": "Fale diretamente com nossa equipe e receba um diagnostico preliminar do seu caso em poucos minutos sem compromisso."
-                }},
-                "trust_cards": [
-                    {{"icon": "⚡", "title": "Agilidade Imediata", "description": "Atendimento rapido e acoes urgentes para estancar prejuizos."}},
-                    {{"icon": "🛡️", "title": "Sigilo & Seguranca", "description": "Tratamento rigoroso dos dados e protecao integral do cliente."}},
-                    {{"icon": "🎯", "title": "Especialistas Dedicados", "description": "Experiencia comprovada em demandas complexas deste segmento."}}
+            "conversion_audit": {{
+                "strengths": [
+                    "Ponto forte 1 identificado na página",
+                    "Ponto forte 2"
                 ],
-                "stats": [
-                    {{"number": "98%", "label": "Casos avaliados no mesmo dia"}},
-                    {{"number": "24/7", "label": "Plantao para emergencias"}},
-                    {{"number": "100%", "label": "Atendimento humano personalizado"}}
+                "bottlenecks": [
+                    "Gargalo 1",
+                    "Gargalo 2"
                 ],
-                "faq": [
-                    {{"question": "Quanto custa a avaliacao inicial?", "answer": "A avaliacao preliminar de viabilidade e 100% gratuita. Analisamos sua situacao antes de propor qualquer medida formal."}},
-                    {{"question": "Quanto tempo leva para iniciar o atendimento?", "answer": "Nosso primeiro contato e imediato via WhatsApp, e o plano de acao costuma ser tracado nas primeiras horas."}},
-                    {{"question": "O atendimento e presencial ou online?", "answer": "Atendemos com total seguranca de forma digital em todo o territorio nacional, sem necessidade de deslocamento."}},
-                    {{"question": "Como funciona a cobranca do servico?", "answer": "Trabalhamos com total transparencia contratual, informando valores e condicoes previamente sem nenhuma surpresa."}}
-                ],
-                "whatsapp_message": "Ola! Gostaria de uma avaliacao preliminar sobre meu caso."
+                "recommendations": [
+                    "Recomendação 1 para aumentar conversão",
+                    "Recomendação 2"
+                ]
             }},
-            "verticals": [
-                {{
-                    "slug": "vertical-1",
-                    "menu_title": "Servico 1",
-                    "page_title": "Titulo SEO Servico 1 (max 65 chars)",
-                    "meta_description": "Meta description do Servico 1",
-                    "headline": "Headline especifica do Servico 1",
-                    "subheadline": "Subheadline com foco na dor do Servico 1",
-                    "cards": [
-                        {{"title": "Diagnostico Especializado", "description": "Identificacao rapida das raizes do problema."}},
-                        {{"title": "Medidas Estrategicas", "description": "Execucao precisa com tecnicas validadas."}},
-                        {{"title": "Resolucao Acelerada", "description": "Foco em restaurar a normalidade no menor prazo possivel."}}
-                    ],
-                    "faq": [
-                        {{"question": "Pergunta especifica do Servico 1?", "answer": "Resposta objetiva e clara."}},
-                        {{"question": "Qual o prazo para esse servico?", "answer": "Explicacao transparente de prazo."}}
-                    ],
-                    "whatsapp_message": "Ola! Preciso de ajuda urgente com [Servico 1]. Podem avaliar?"
-                }},
-                {{
-                    "slug": "vertical-2",
-                    "menu_title": "Servico 2",
-                    "page_title": "Titulo SEO Servico 2",
-                    "meta_description": "Meta description do Servico 2",
-                    "headline": "Headline especifica do Servico 2",
-                    "subheadline": "Subheadline especifica",
-                    "cards": [
-                        {{"title": "Diferencial A", "description": "Descricao"}},
-                        {{"title": "Diferencial B", "description": "Descricao"}},
-                        {{"title": "Diferencial C", "description": "Descricao"}}
-                    ],
-                    "faq": [
-                        {{"question": "Pergunta especifica do Servico 2?", "answer": "Resposta"}}
-                    ],
-                    "whatsapp_message": "Ola! Gostaria de informacoes sobre [Servico 2]."
-                }},
-                {{
-                    "slug": "vertical-3",
-                    "menu_title": "Servico 3",
-                    "page_title": "Titulo SEO Servico 3",
-                    "meta_description": "Meta description do Servico 3",
-                    "headline": "Headline especifica do Servico 3",
-                    "subheadline": "Subheadline especifica",
-                    "cards": [
-                        {{"title": "Diferencial X", "description": "Descricao"}},
-                        {{"title": "Diferencial Y", "description": "Descricao"}},
-                        {{"title": "Diferencial Z", "description": "Descricao"}}
-                    ],
-                    "faq": [
-                        {{"question": "Pergunta especifica do Servico 3?", "answer": "Resposta"}}
-                    ],
-                    "whatsapp_message": "Ola! Gostaria de atendimento para [Servico 3]."
-                }}
-            ],
             "google_ads": {{
                 "ad_groups": [
                     {{
-                        "name": "G1: Principal / Nicho Geral",
-                        "headlines": [
-                            "15 titulos com max 30 carac cada"
-                        ],
-                        "descriptions": [
-                            "4 descricoes com max 90 carac cada"
-                        ],
-                        "keywords": [
-                            "[termo exato 1]",
-                            "\"termo de frase 1\"",
-                            "\"termo de frase 2\""
-                        ]
+                        "name": "G1: Principal / Oferta Central",
+                        "headlines": ["15 títulos com max 30 caracteres cada"],
+                        "descriptions": ["4 descrições com max 90 caracteres cada"],
+                        "keywords": ["[termo exato 1]", "\"termo de frase 1\"", "\"termo de frase 2\""]
                     }},
                     {{
-                        "name": "G2: Servico 1",
-                        "headlines": ["15 titulos com max 30 carac"],
-                        "descriptions": ["4 descricoes com max 90 carac"],
+                        "name": "G2: Serviço 1",
+                        "headlines": ["15 títulos com max 30 carac"],
+                        "descriptions": ["4 descrições com max 90 carac"],
                         "keywords": ["[termo exato]", "\"termo de frase\""]
                     }},
                     {{
-                        "name": "G3: Servico 2",
-                        "headlines": ["15 titulos com max 30 carac"],
-                        "descriptions": ["4 descricoes com max 90 carac"],
+                        "name": "G3: Serviço 2",
+                        "headlines": ["15 títulos com max 30 carac"],
+                        "descriptions": ["4 descrições com max 90 carac"],
                         "keywords": ["[termo exato]", "\"termo de frase\""]
                     }},
                     {{
-                        "name": "G4: Servico 3",
-                        "headlines": ["15 titulos com max 30 carac"],
-                        "descriptions": ["4 descricoes com max 90 carac"],
+                        "name": "G4: Serviço 3",
+                        "headlines": ["15 títulos com max 30 carac"],
+                        "descriptions": ["4 descrições com max 90 carac"],
                         "keywords": ["[termo exato]", "\"termo de frase\""]
                     }}
+                ],
+                "negative_keywords": [
+                    "gratis", "de graca", "curso", "salario", "vagas", "o que e", "pdf",
+                    "significado", "trabalhe conosco", "concurso", "download", "faculdade",
+                    "apostila", "login", "reclame aqui", "telefone 0800", "tutorial"
                 ]
             }}
         }}
@@ -332,15 +184,51 @@ class AIEngine:
         res_text = self.generate(prompt)
         return self._extract_json(res_text)
 
-    def generate_copy_json(self, niche: str, business_name: str, audience: str = "") -> Dict[str, Any]:
-        """Legado compativel para chamadas simples"""
-        kit = self.generate_full_client_kit(niche, business_name, "", "Brasil")
-        home = kit.get("home", {})
-        return {
-            "headline_first": home.get("headline_first", "Atendimento Especializado"),
-            "headline_highlight": home.get("headline_highlight", "Para seu Negocio"),
-            "subheadline": home.get("subheadline", "Solucoes rapidas com seguranca."),
-            "cta_text": home.get("cta_primary", "Falar no WhatsApp"),
-            "trust_cards": home.get("trust_cards", []),
-            "google_ads": kit.get("google_ads", {})
-        }
+    def analyze_competitors(self, niche: str, client_name: str, region: str = "Brasil") -> Dict[str, Any]:
+        prompt = f"""
+        Atue como Especialista Senior em Inteligencia de Trafego Pago e Google Ads.
+        Cliente: "{client_name}"
+        Nicho de Atuacao: "{niche}"
+        Regiao: "{region}"
+
+        Pesquise concorrentes reais e atuantes no Google Ads no Brasil para este nicho.
+        Retorne ESTRITAMENTE um objeto JSON valido:
+        {{
+            "niche_summary": "Resumo competitivo, CPC estimado e maturidade do mercado",
+            "competitors": [
+                {{
+                    "name": "Concorrente 1",
+                    "domain": "concorrente1.com.br",
+                    "primary_focus": "Foco da oferta no Ads",
+                    "approach": "Modelo comercial e promessas",
+                    "weaknesses": "Ponto fraco exploravel"
+                }},
+                {{
+                    "name": "Concorrente 2",
+                    "domain": "concorrente2.com.br",
+                    "primary_focus": "...",
+                    "approach": "...",
+                    "weaknesses": "..."
+                }},
+                {{
+                    "name": "Concorrente 3",
+                    "domain": "concorrente3.com.br",
+                    "primary_focus": "...",
+                    "approach": "...",
+                    "weaknesses": "..."
+                }}
+            ],
+            "market_gaps": [
+                {{"title": "1. Brecha de Mercado 1", "description": "Explicacao de como explorar"}},
+                {{"title": "2. Brecha de Mercado 2", "description": "Explicacao"}},
+                {{"title": "3. Brecha de Mercado 3", "description": "Explicacao"}}
+            ],
+            "whatsapp_triage_questions": [
+                "Pergunta de triagem 1 para WhatsApp",
+                "Pergunta de triagem 2",
+                "Pergunta de triagem 3"
+            ]
+        }}
+        """
+        res_text = self.generate(prompt)
+        return self._extract_json(res_text)

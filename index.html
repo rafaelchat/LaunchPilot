@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LaunchPilot — Automação Turnkey de Sites, GTM, GA4 e Google Ads</title>
-  <meta name="description" content="Lançamento automatizado de sites multi-páginas com rastreamento oficial Google Tag Manager, GA4 e Google Ads em 60 segundos com delegação de acesso Admin.">
+  <title>LaunchPilot - Onboarding Turnkey de Sites Existentes & Google Ads</title>
+  <meta name="description" content="Leitura e auditoria de sites existentes, inteligência competitiva no Google Ads, criação de contas GTM e GA4 via agenciaadlovers@gmail.com e kit de instalação de tags.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #07090e;
-      --bg-card: rgba(15, 23, 42, 0.7);
+      --bg-card: rgba(15, 23, 42, 0.75);
       --border: rgba(255, 255, 255, 0.08);
       --accent: #3b82f6;
       --accent-glow: rgba(59, 130, 246, 0.4);
@@ -19,26 +19,29 @@
       --text: #f8fafc;
       --text-muted: #94a3b8;
       --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
     body { background-color: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; overflow-x: hidden; }
 
     /* Top Banner */
-    .top-announcement { background: linear-gradient(90deg, #1e1b4b, #312e81, #1e1b4b); border-bottom: 1px solid rgba(99, 102, 241, 0.2); padding: 9px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #c7d2fe; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .top-announcement { background: linear-gradient(90deg, #1e1b4b, #312e81, #1e1b4b); border-bottom: 1px solid rgba(99, 102, 241, 0.25); padding: 9px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #c7d2fe; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .status-pill { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 8px #22c55e; }
 
     /* Nav */
-    nav { padding: 18px 32px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(12px); background: rgba(7, 9, 14, 0.8); position: sticky; top: 0; z-index: 50; }
+    nav { padding: 18px 32px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(12px); background: rgba(7, 9, 14, 0.85); position: sticky; top: 0; z-index: 50; }
     .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; color: #fff; letter-spacing: -0.5px; }
     .brand-badge { background: linear-gradient(135deg, var(--accent), #60a5fa); font-size: 10px; padding: 3px 8px; border-radius: 99px; text-transform: uppercase; font-weight: 700; color: #fff; }
-    .agency-tag { font-size: 12px; color: var(--text-muted); background: rgba(255, 255, 255, 0.05); padding: 6px 14px; border-radius: 99px; border: 1px solid var(--border); }
+    .agency-tag { font-size: 12px; color: var(--text-muted); background: rgba(255, 255, 255, 0.05); padding: 6px 14px; border-radius: 99px; border: 1px solid var(--border); display: flex; align-items: center; gap: 6px; }
+    .agency-tag strong { color: #93c5fd; }
 
     /* Hero */
-    .hero { text-align: center; padding: 50px 24px 30px; max-width: 900px; margin: 0 auto; }
+    .hero { text-align: center; padding: 48px 24px 28px; max-width: 920px; margin: 0 auto; }
     .hero-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.25); color: #93c5fd; padding: 6px 16px; border-radius: 99px; font-size: 13px; font-weight: 600; margin-bottom: 20px; }
-    h1 { font-size: 44px; font-weight: 800; letter-spacing: -1.2px; line-height: 1.15; margin-bottom: 16px; }
+    h1 { font-size: 42px; font-weight: 800; letter-spacing: -1.2px; line-height: 1.15; margin-bottom: 16px; }
     h1 span { background: linear-gradient(135deg, #60a5fa, #38bdf8, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    p.lead { font-size: 17px; color: var(--text-muted); max-width: 680px; margin: 0 auto 30px; }
+    p.lead { font-size: 17px; color: var(--text-muted); max-width: 740px; margin: 0 auto 30px; }
 
     /* Main Container */
     .main-wrap { max-width: 1240px; margin: 0 auto 80px; padding: 0 24px; }
@@ -51,7 +54,7 @@
     .tab-btn { padding: 14px 20px; background: none; border: none; color: var(--text-muted); font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; border-radius: 8px 8px 0 0; }
     .tab-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.03); }
     .tab-btn.active { color: #fff; border-bottom-color: var(--accent); background: rgba(59, 130, 246, 0.08); }
-    .tab-badge { background: rgba(59, 130, 246, 0.2); color: #93c5fd; font-size: 11px; padding: 2px 7px; border-radius: 6px; }
+    .tab-badge { background: rgba(59, 130, 246, 0.2); color: #93c5fd; font-size: 11px; padding: 2px 7px; border-radius: 6px; font-weight: 700; }
 
     .tab-content { padding: 32px; display: none; }
     .tab-content.active { display: block; }
@@ -62,14 +65,16 @@
     .form-group.full { grid-column: 1 / -1; }
     label { font-size: 13px; font-weight: 600; color: #e2e8f0; display: flex; justify-content: space-between; }
     label span { color: #f43f5e; }
-    input[type="text"], input[type="email"], select, textarea {
+    .helper-text { font-size: 12px; color: var(--text-muted); }
+    input[type="text"], input[type="email"], input[type="url"], select, textarea {
       background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; color: #fff; font-size: 14px; outline: none; transition: all 0.2s; width: 100%;
     }
     input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
     
-    .colors-wrap { display: flex; gap: 16px; align-items: center; }
-    .color-box { display: flex; align-items: center; gap: 8px; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border); padding: 8px 12px; border-radius: 10px; font-size: 13px; }
-    .color-box input[type="color"] { border: none; width: 28px; height: 28px; border-radius: 6px; background: none; cursor: pointer; }
+    /* URL Input Highlighting */
+    .input-url-wrap { position: relative; }
+    .input-url-wrap input { padding-left: 44px; font-weight: 600; font-size: 15px; border-color: rgba(59, 130, 246, 0.4); background: rgba(15, 23, 42, 0.6); }
+    .url-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #60a5fa; font-size: 16px; }
 
     /* Action Button */
     .btn-submit {
@@ -79,30 +84,44 @@
     .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
     /* Terminal Console */
-    .console-box { margin-top: 24px; background: #04060a; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #94a3b8; max-height: 240px; overflow-y: auto; display: none; }
+    .console-box { margin-top: 24px; background: #04060a; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #94a3b8; max-height: 250px; overflow-y: auto; display: none; }
     .console-line { margin-bottom: 6px; display: flex; gap: 10px; }
     .console-time { color: #475569; }
 
-    /* Preview Section */
-    .preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
-    .device-switcher { display: flex; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; padding: 4px; }
-    .device-btn { background: none; border: none; color: var(--text-muted); padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; }
-    .device-btn.active { background: rgba(255,255,255,0.08); color: #fff; }
-    .iframe-container { border: 1px solid var(--border); border-radius: 16px; overflow: hidden; height: 680px; background: #fff; transition: all 0.3s ease; }
-    iframe { width: 100%; height: 100%; border: none; }
-
-    /* Dossier & Ads Styling */
+    /* Cards */
     .card-dark { background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
-    .card-dark h3 { font-size: 18px; margin-bottom: 12px; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .card-dark h3 { font-size: 17px; margin-bottom: 12px; color: #fff; display: flex; align-items: center; gap: 8px; }
+    
+    /* Diagnostics Styling */
+    .diag-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .diag-metric { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .diag-metric-title { font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 6px; }
+    .diag-metric-val { font-size: 15px; font-weight: 700; color: #fff; word-break: break-all; }
+    
+    .tag-status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; margin-right: 6px; margin-bottom: 6px; }
+    .tag-found { background: rgba(34, 197, 94, 0.15); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.3); }
+    .tag-missing { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Tables */
     .table-custom { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
     .table-custom th { background: rgba(255, 255, 255, 0.05); padding: 10px 12px; text-align: left; color: #cbd5e1; font-weight: 700; border-bottom: 1px solid var(--border); }
     .table-custom td { padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); color: #94a3b8; }
-    .badge-admin { background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); color: #86efac; padding: 4px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
-    .ad-item { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; display: flex; justify-content: space-between; }
-    .ad-chars { color: #64748b; font-size: 11px; }
+    
+    /* Code Boxes */
+    .code-box { position: relative; background: #030712; border: 1px solid var(--border); border-radius: 12px; padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: #e2e8f0; overflow-x: auto; margin-bottom: 18px; }
+    .copy-btn { position: absolute; right: 12px; top: 12px; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border); color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .copy-btn:hover { background: var(--accent); }
 
+    /* Buttons */
     .btn-download { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s; }
     .btn-download:hover { background: rgba(255, 255, 255, 0.15); }
+    .preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+
+    /* Badge Admin */
+    .badge-admin { background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); color: #86efac; padding: 4px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+
+    /* Toast */
+    #toast { position: fixed; bottom: 24px; right: 24px; background: #10b981; color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; box-shadow: 0 10px 25px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s; z-index: 999; }
 
     @media (max-width: 768px) {
       .form-grid { grid-template-columns: 1fr; }
@@ -115,26 +134,26 @@
 
   <div class="top-announcement">
     <span class="status-pill"></span>
-    LaunchPilot Engine Online — Infraestrutura Google Cloud Centralizada via agenciaadlovers@gmail.com
+    LaunchPilot Engine Ativo - Infraestrutura Google Cloud Centralizada via agenciaadlovers@gmail.com
   </div>
 
   <nav>
     <div class="brand">
       🚀 LaunchPilot
-      <span class="brand-badge">Turnkey v2.0</span>
+      <span class="brand-badge">Sites Existentes v2.5</span>
     </div>
     <div class="agency-tag">
-      🏢 Conta Central: agenciaadlovers@gmail.com
+      Conta Central: <strong>agenciaadlovers@gmail.com</strong>
     </div>
   </nav>
 
   <div class="hero">
     <div class="hero-tag">
-      ⚡ Esteira Industrial de Lançamento de Clientes
+      ⚙️ Onboarding Turnkey para Sites Existentes
     </div>
-    <h1>Lançamento Turnkey de Sites, <span>GTM, GA4 e Google Ads</span></h1>
+    <h1>Leitura do Site, Pesquisa & <span>Contas Google Ads</span></h1>
     <p class="lead">
-      Insira os dados do cliente online. Nosso motor pesquisa concorrentes, compila o site multi-páginas com deduplicação por orderId, cria os contêineres na agência e convida o cliente como Administrador.
+      Insira o site atual do cliente. Nosso motor lê o conteúdo, audita tags, realiza pesquisa competitiva de mercado, provisiona GTM e GA4 centralizados sob <code>agenciaadlovers@gmail.com</code> e gera o kit universal de instalação de tags com deduplicação de cliques.
     </p>
   </div>
 
@@ -142,19 +161,22 @@
     <div class="workspace-card">
       <div class="tabs-bar">
         <button class="tab-btn active" onclick="switchTab('form')">
-          📝 1. Dados do Cliente
+          📝 1. Dados do Site Atual
         </button>
-        <button class="tab-btn" onclick="switchTab('preview')">
-          🖥️ 2. Preview do Site <span id="previewBadge" class="tab-badge">Aguardando</span>
+        <button class="tab-btn" onclick="switchTab('diag')">
+          🔍 2. Diagnóstico do Site <span id="diagBadge" class="tab-badge">Aguardando</span>
         </button>
         <button class="tab-btn" onclick="switchTab('dossier')">
-          🕵️ 3. Dossiê de Concorrentes
+          📊 3. Dossiê de Concorrentes
         </button>
         <button class="tab-btn" onclick="switchTab('ads')">
-          🎯 4. Google Ads (RSAs & Negativas)
+          🎯 4. Campanhas Google Ads
+        </button>
+        <button class="tab-btn" onclick="switchTab('tags')">
+          📦 5. Kit de Instalação de Tags
         </button>
         <button class="tab-btn" onclick="switchTab('access')">
-          🔑 5. Acessos & Admin Delegado
+          👥 6. Acessos Admin Delegados
         </button>
       </div>
 
@@ -162,56 +184,44 @@
       <div id="tab-form" class="tab-content active">
         <form id="launchForm" onsubmit="handleLaunch(event)">
           <div class="form-grid">
-            <div class="form-group">
-              <label>Nome da Empresa / Profissional <span>*</span></label>
-              <input type="text" id="business_name" required placeholder="Ex: Dra. Beatriz Mendes Advocacia" value="Dra. Beatriz Mendes">
-            </div>
-
-            <div class="form-group">
-              <label>Nicho / Especialidade de Atuação <span>*</span></label>
-              <input type="text" id="niche" required placeholder="Ex: Direito Médico e Defesa de Médicos" value="Direito Médico e Defesa de Médicos">
-            </div>
-
-            <div class="form-group">
-              <label>Praça / Região de Atendimento <span>*</span></label>
-              <input type="text" id="region" required placeholder="Ex: São Paulo - SP ou Brasil Todo" value="São Paulo - SP">
-            </div>
-
-            <div class="form-group">
-              <label>WhatsApp de Atendimento com DDD <span>*</span></label>
-              <input type="text" id="whatsapp" required placeholder="5511987654321" value="5511987654321">
-            </div>
-
+            
             <div class="form-group full">
-              <label>Público-Alvo Principal</label>
-              <input type="text" id="audience" placeholder="Ex: Médicos, clínicas e hospitais com processos éticos no CRM ou ações indenizatórias" value="Médicos e clínicas com processos éticos no CRM ou ações judiciais">
-            </div>
-
-            <div class="form-group full">
-              <label>E-mail do Cliente para Receber Convites de Administrador <span>*</span></label>
-              <input type="email" id="email" required placeholder="cliente@gmail.com" value="cliente@exemplo.com.br">
-              <span style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
-                ✓ Este e-mail receberá permissão de Administrador no GTM, GA4, Google Search Console e Google Ads.
-              </span>
-            </div>
-
-            <div class="form-group full">
-              <label>Paleta de Cores da Marca</label>
-              <div class="colors-wrap">
-                <div class="color-box">
-                  <span>Cor Primária (Fundo/Header):</span>
-                  <input type="color" id="primary_color" value="#07090e">
-                </div>
-                <div class="color-box">
-                  <span>Cor de Destaque / Botões:</span>
-                  <input type="color" id="accent_color" value="#2563eb">
-                </div>
+              <label>URL do Site Atual do Cliente <span>*</span></label>
+              <div class="input-url-wrap">
+                <span class="url-icon">🌐</span>
+                <input type="url" id="site_url" required placeholder="https://desbloqueiodecontas.online" value="https://desbloqueiodecontas.online">
               </div>
+              <span class="helper-text">Insira o domínio ou landing page ativa. Nosso crawler lerá o HTML, títulos, textos, telefones e tags já instaladas.</span>
             </div>
+
+            <div class="form-group">
+              <label>E-mail do Cliente para Convites de Administrador <span>*</span></label>
+              <input type="email" id="email" required placeholder="contato@desbloqueiodecontas.online" value="contato@desbloqueiodecontas.online">
+              <span class="helper-text">Este e-mail receberá permissão de Administrador no GTM, GA4, Search Console e Google Ads.</span>
+            </div>
+
+            <div class="form-group">
+              <label>Conta Google Ads (MCC da Agência)</label>
+              <input type="text" id="ads_cid" value="491-198-0801" readonly style="opacity: 0.8; cursor: not-allowed;">
+              <span class="helper-text">Centralizada em <code>agenciaadlovers@gmail.com</code> (Customer ID 491-198-0801).</span>
+            </div>
+
+            <div class="form-group">
+              <label>Nome da Empresa / Profissional (Opcional)</label>
+              <input type="text" id="business_name" placeholder="Deixe em branco para a IA extrair do site">
+              <span class="helper-text">Se vazio, o Gemini identificará a razão social e nome de fantasia direto do site.</span>
+            </div>
+
+            <div class="form-group">
+              <label>WhatsApp de Atendimento (Opcional)</label>
+              <input type="text" id="whatsapp" placeholder="Deixe em branco para o crawler detectar do site">
+              <span class="helper-text">Detecta automaticamente botões wa.me e telefones comerciais presentes no site.</span>
+            </div>
+
           </div>
 
           <button type="submit" id="btnSubmit" class="btn-submit">
-            <span>🚀 Executar Esteira Turnkey & Criar Estrutura Completa</span>
+            <span>🚀 Ler Site, Pesquisar Concorrentes & Criar Contas</span>
           </button>
         </form>
 
@@ -220,24 +230,48 @@
         </div>
       </div>
 
-      <!-- TAB 2: PREVIEW -->
-      <div id="tab-preview" class="tab-content">
+      <!-- TAB 2: DIAGNÓSTICO DO SITE -->
+      <div id="tab-diag" class="tab-content">
         <div class="preview-header">
           <div>
-            <h3 style="font-size: 18px; color: #fff;">Preview do Site Compilado</h3>
-            <p style="font-size: 13px; color: var(--text-muted);">Site responsivo com telemetria de 19+ botões e deduplicação de leads por orderId</p>
-          </div>
-          <div style="display: flex; gap: 10px; align-items: center;">
-            <div class="device-switcher">
-              <button class="device-btn active" onclick="setIframeDevice('desktop', this)">Desktop</button>
-              <button class="device-btn" onclick="setIframeDevice('mobile', this)">Mobile (iPhone)</button>
-            </div>
-            <button class="btn-download" onclick="openNewTab()">↗ Abrir em Nova Aba</button>
-            <button class="btn-download" onclick="downloadSiteHtml()">⬇ Baixar HTML</button>
+            <h3 style="font-size: 18px; color: #fff;">Diagnóstico & Auditoria do Site Atual</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">Informações estruturais extraídas diretamente do HTML do site do cliente</p>
           </div>
         </div>
-        <div class="iframe-container">
-          <iframe id="siteIframe"></iframe>
+
+        <div class="diag-grid">
+          <div class="diag-metric">
+            <div class="diag-metric-title">Empresa Identificada</div>
+            <div id="diagCompany" class="diag-metric-val">Aguardando leitura...</div>
+          </div>
+          <div class="diag-metric">
+            <div class="diag-metric-title">Nicho de Mercado</div>
+            <div id="diagNiche" class="diag-metric-val">Aguardando leitura...</div>
+          </div>
+          <div class="diag-metric">
+            <div class="diag-metric-title">Público-Alvo</div>
+            <div id="diagAudience" class="diag-metric-val">Aguardando leitura...</div>
+          </div>
+          <div class="diag-metric">
+            <div class="diag-metric-title">WhatsApp / Telefone</div>
+            <div id="diagContacts" class="diag-metric-val">Aguardando leitura...</div>
+          </div>
+        </div>
+
+        <div class="card-dark">
+          <h3>🏷️ Auditoria de Tags Existentes no Site</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">Verificação de contêineres e pixels já presentes no código-fonte:</p>
+          <div id="tagsAuditContainer">
+            <span style="color: var(--text-muted); font-size: 13px;">Execute a esteira para auditar as tags instaladas.</span>
+          </div>
+        </div>
+
+        <div class="card-dark">
+          <h3>📌 4 Serviços / Verticais Detectados no Site</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">Estes serviços são usados para gerar os 4 grupos de anúncios no Google Ads:</p>
+          <div id="servicesDetectedList">
+            <span style="color: var(--text-muted); font-size: 13px;">Aguardando extração semântica...</span>
+          </div>
         </div>
       </div>
 
@@ -246,13 +280,13 @@
         <div class="preview-header">
           <div>
             <h3 style="font-size: 18px; color: #fff;">Dossiê de Inteligência & Espionagem Competitiva</h3>
-            <p style="font-size: 13px; color: var(--text-muted);">Engenharia reversa dos concorrentes ativos no Google Ads e brechas exploráveis</p>
+            <p style="font-size: 13px; color: var(--text-muted);">Análise dos principais concorrentes ativos no Google Ads e brechas exploráveis</p>
           </div>
-          <button class="btn-download" onclick="downloadDossierMd()">⬇ Baixar Dossiê (.md)</button>
+          <button class="btn-download" onclick="downloadDossierMd()">📥 Baixar Dossiê (.md)</button>
         </div>
         
         <div id="dossierContent">
-          <p style="color: var(--text-muted);">Preencha os dados e execute a esteira para visualizar o dossiê completo de concorrentes.</p>
+          <p style="color: var(--text-muted);">Insira o site e execute a esteira para gerar o dossiê completo de concorrentes.</p>
         </div>
       </div>
 
@@ -260,10 +294,17 @@
       <div id="tab-ads" class="tab-content">
         <div class="preview-header">
           <div>
-            <h3 style="font-size: 18px; color: #fff;">Campanha para Google Ads (RSAs & Negativas)</h3>
-            <p style="font-size: 13px; color: var(--text-muted);">Matriz de 15 títulos, 4 descrições, grupos segmentados e lista de negativas</p>
+            <h3 style="font-size: 18px; color: #fff;">Campanhas Google Ads (4 Grupos de Anúncios, RSAs e Negativas)</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">Estrutura completa pronta para importação direta no Google Ads Editor</p>
           </div>
-          <button class="btn-download" onclick="downloadAdsCsv()">⬇ Baixar CSV Google Ads Editor</button>
+          <button class="btn-download" onclick="downloadAdsCsv()">📥 Baixar CSV Google Ads Editor</button>
+        </div>
+
+        <div class="card-dark">
+          <h3>🎯 Grupos de Anúncios Segmentados por Serviço</h3>
+          <div id="adGroupsList" class="form-grid" style="margin-top: 12px;">
+            <p style="color: var(--text-muted); font-size: 13px;">Aguardando geração dos grupos...</p>
+          </div>
         </div>
 
         <div class="form-grid">
@@ -280,7 +321,7 @@
               <p style="color: var(--text-muted); font-size: 13px;">Execute a esteira para gerar as descrições.</p>
             </div>
             
-            <h3 style="margin-top: 24px;">Palavras-Chave Negativas</h3>
+            <h3 style="margin-top: 24px;">Palavras-Chave Negativas B2B / Anticuriosos</h3>
             <div id="negativesList" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">
               <span style="color: var(--text-muted); font-size: 13px;">Aguardando geração...</span>
             </div>
@@ -288,51 +329,94 @@
         </div>
       </div>
 
-      <!-- TAB 5: ACESSOS ADMIN -->
+      <!-- TAB 5: KIT DE INSTALAÇÃO DE TAGS -->
+      <div id="tab-tags" class="tab-content">
+        <div class="preview-header">
+          <div>
+            <h3 style="font-size: 18px; color: #fff;">Kit de Instalação de Tags & Script Universal</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">Códigos prontos para colar no site atual do cliente (WordPress, Wix, Webflow ou HTML)</p>
+          </div>
+          <button class="btn-download" onclick="downloadTagGuideMd()">📥 Baixar Guia de Instalação (.md)</button>
+        </div>
+
+        <div class="card-dark">
+          <h3>1. Código para o &lt;head&gt; (Google Tag Manager)</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Cole este código o mais alto possível dentro da tag <code>&lt;head&gt;</code> de todas as páginas:</p>
+          <div class="code-box">
+            <button class="copy-btn" onclick="copySnippet('gtmHeadSnippet')">📋 Copiar</button>
+            <pre id="gtmHeadSnippet">Aguardando geração...</pre>
+          </div>
+        </div>
+
+        <div class="card-dark">
+          <h3>2. Código para o topo do &lt;body&gt; (NoScript)</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Cole este código imediatamente após a abertura da tag <code>&lt;body&gt;</code>:</p>
+          <div class="code-box">
+            <button class="copy-btn" onclick="copySnippet('gtmBodySnippet')">📋 Copiar</button>
+            <pre id="gtmBodySnippet">Aguardando geração...</pre>
+          </div>
+        </div>
+
+        <div class="card-dark">
+          <h3>3. Script Universal de Deduplicação de Conversões por orderId</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
+            Cole este script antes do fechamento do <code>&lt;/body&gt;</code>. 
+            Ele intercepta <strong>automaticamente todos os cliques de WhatsApp</strong> no site do cliente e dispara o evento <code>whatsapp_conversion</code> com <code>orderId</code> exclusivo, impedindo conversões duplicadas no Google Ads!
+          </p>
+          <div class="code-box">
+            <button class="copy-btn" onclick="copySnippet('universalTelemetrySnippet')">📋 Copiar Script</button>
+            <pre id="universalTelemetrySnippet">Aguardando geração...</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 6: ACESSOS ADMIN -->
       <div id="tab-access" class="tab-content">
         <div class="preview-header">
           <div>
             <h3 style="font-size: 18px; color: #fff;">Acessos de Administrador Delegados ao Cliente</h3>
-            <p style="font-size: 13px; color: var(--text-muted);">Contas provisionadas sob agenciaadlovers@gmail.com com convite enviado ao cliente</p>
+            <p style="font-size: 13px; color: var(--text-muted);">Contas provisionadas sob <code>agenciaadlovers@gmail.com</code> com convite enviado ao cliente</p>
           </div>
         </div>
 
         <div id="accessCardsGrid" class="form-grid">
           <div class="card-dark">
             <h3>🏷️ Google Tag Manager</h3>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Contêiner Web configurado com tags deduplicadas e Consent Mode V2.</p>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Contêiner Web configurado com Google Tag, Vinculador de Conversões e Tag de Conversão do Google Ads com orderId.</p>
             <div id="gtmCardContent">
-              <span class="badge-admin">✓ Aguardando execução</span>
+              <span class="badge-admin">⏳ Aguardando execução</span>
             </div>
           </div>
 
           <div class="card-dark">
             <h3>📊 Google Analytics 4</h3>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Propriedade e Stream de dados com dimensões customizadas de order_id e btn_name.</p>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Propriedade e Stream de dados com dimensões customizadas de order_id, btn_name e btn_placement.</p>
             <div id="ga4CardContent">
-              <span class="badge-admin">✓ Aguardando execução</span>
+              <span class="badge-admin">⏳ Aguardando execução</span>
             </div>
           </div>
 
           <div class="card-dark">
-            <h3>🔍 Google Search Console</h3>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Propriedade verificada e sitemap.xml submetido para indexação orgânica.</p>
+            <h3>🌐 Google Search Console</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Propriedade registrada para monitoramento de indexação orgânica e desempenho.</p>
             <div id="gscCardContent">
-              <span class="badge-admin">✓ Aguardando execução</span>
+              <span class="badge-admin">⏳ Aguardando execução</span>
             </div>
           </div>
 
           <div class="card-dark">
-            <h3>🎯 Google Ads MCC</h3>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Conta vinculada na agência (MCC 491-198-0801) com convite de Administrador.</p>
+            <h3>🎯 Google Ads (MCC 491-198-0801)</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Conta central da agência com convite direto de Administrador para o cliente.</p>
             <div id="adsCardContent">
-              <span class="badge-admin">✓ Aguardando execução</span>
+              <span class="badge-admin">⏳ Aguardando execução</span>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <div id="toast">Copiado para a área de transferência!</div>
 
   <script>
     let currentGeneratedData = null;
@@ -346,6 +430,22 @@
       
       const content = document.getElementById('tab-' + tabId);
       if (content) content.classList.add('active');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg || 'Copiado para a área de transferência!';
+      toast.style.opacity = '1';
+      setTimeout(() => { toast.style.opacity = '0'; }, 2400);
+    }
+
+    function copySnippet(elementId) {
+      const el = document.getElementById(elementId);
+      if (el) {
+        navigator.clipboard.writeText(el.textContent).then(() => {
+          showToast('Código copiado com sucesso!');
+        });
+      }
     }
 
     function logToConsole(text) {
@@ -364,23 +464,20 @@
       e.preventDefault();
       const btn = document.getElementById('btnSubmit');
       btn.disabled = true;
-      btn.innerHTML = '<span>⚡ Processando Esteira com IA e Google Cloud...</span>';
+      btn.innerHTML = '<span>⏳ Lendo site, pesquisando mercado e criando contas...</span>';
       
       const payload = {
-        business_name: document.getElementById('business_name').value,
-        niche: document.getElementById('niche').value,
-        region: document.getElementById('region').value,
-        audience: document.getElementById('audience').value,
-        whatsapp: document.getElementById('whatsapp').value,
+        site_url: document.getElementById('site_url').value,
         email: document.getElementById('email').value,
-        primary_color: document.getElementById('primary_color').value,
-        accent_color: document.getElementById('accent_color').value
+        business_name: document.getElementById('business_name').value,
+        whatsapp: document.getElementById('whatsapp').value,
+        ads_cid: document.getElementById('ads_cid').value
       };
 
       document.getElementById('consoleLogs').innerHTML = '';
-      logToConsole('🚀 Iniciando esteira turnkey para: ' + payload.business_name);
-      logToConsole('🕵️ Realizando espionagem competitiva e engenharia reversa no nicho: ' + payload.niche);
-      logToConsole('🧠 Google Gemini gerando copy multi-páginas e matriz de anúncios RSA...');
+      logToConsole('🌐 1. Conectando e lendo site atual: ' + payload.site_url);
+      logToConsole('🔍 2. Auditando metadados, H1/H2, contatos e tags existentes...');
+      logToConsole('🤖 3. Google Gemini executando inteligência de concorrência e mapeando serviços...');
 
       try {
         const resp = await fetch('/api/generate', {
@@ -396,40 +493,98 @@
         const data = await resp.json();
         currentGeneratedData = data;
 
-        logToConsole('✓ Dossiê de concorrentes concluído com análise de leilão e brechas.');
-        logToConsole('✓ Copywriting gerada com sucesso para Home e verticais.');
-        logToConsole('✓ Contêiner GTM provisionado: ' + data.tracking.gtm_id);
-        logToConsole('✓ GA4 conectado: ' + data.tracking.ga4_id);
-        logToConsole('✓ Google Ads: Ação de conversão registrada (' + data.tracking.ads_conversion_label + ')');
-        logToConsole('✉️ Convite de Administrador enviado para: ' + data.email);
-        logToConsole('🎉 SITE NO AR! Renderizando preview...');
+        logToConsole('✅ Leitura do site concluída com sucesso!');
+        logToConsole('🏢 Empresa identificada: ' + data.business_name);
+        logToConsole('🎯 Nicho mapeado: ' + (data.competitors?.detected_niche || 'Geral'));
+        logToConsole('🏷️ Contêiner GTM criado na agência: ' + data.tracking.gtm_id);
+        logToConsole('📊 GA4 conectado: ' + data.tracking.ga4_id);
+        logToConsole('👥 Permissões de Administrador delegadas para: ' + data.email);
+        logToConsole('🚀 Kit de tags e campanhas estruturadas com sucesso!');
 
-        // Renderiza no iframe
-        const iframe = document.getElementById('siteIframe');
-        iframe.srcdoc = data.site_html;
-        document.getElementById('previewBadge').textContent = 'Pronto!';
-        document.getElementById('previewBadge').style.background = '#10b981';
+        // Atualiza Badge do Diagnóstico
+        document.getElementById('diagBadge').textContent = 'Concluído!';
+        document.getElementById('diagBadge').style.background = '#10b981';
+
+        // Renderiza Diagnóstico do Site
+        renderDiagnostics(data);
 
         // Renderiza Dossiê de Concorrentes
         renderDossier(data.competitors);
 
         // Renderiza Google Ads
-        renderAds(data.copy.google_ads);
+        renderAds(data.google_ads);
+
+        // Renderiza Kit de Tags
+        renderTagKit(data.tag_kit);
 
         // Renderiza Acessos Admin
         renderAccessCards(data);
 
         btn.disabled = false;
-        btn.innerHTML = '<span>✓ Esteira Concluída com Sucesso! (Clique para gerar outro)</span>';
+        btn.innerHTML = '<span>✅ Onboarding Concluído com Sucesso! (Clique para rodar outro)</span>';
 
         setTimeout(() => {
-          switchTab('preview');
-        }, 1200);
+          switchTab('diag');
+        }, 1000);
 
       } catch (err) {
         logToConsole('❌ Erro: ' + err.message);
         btn.disabled = false;
         btn.innerHTML = '<span>Tentar Novamente</span>';
+      }
+    }
+
+    function renderDiagnostics(data) {
+      document.getElementById('diagCompany').textContent = data.business_name;
+      document.getElementById('diagNiche').textContent = data.competitors?.detected_niche || 'Geral';
+      document.getElementById('diagAudience').textContent = data.competitors?.detected_audience || 'Clientes Qualificados';
+      
+      const contacts = [...(data.crawl_data?.phones || []), ...(data.crawl_data?.wa_links || [])];
+      document.getElementById('diagContacts').textContent = contacts.length > 0 ? contacts.slice(0, 2).join(' | ') : 'Detectado na página';
+
+      // Tags auditadas
+      const tags = data.crawl_data?.detected_tags || {};
+      const auditBox = document.getElementById('tagsAuditContainer');
+      let tagsHtml = '';
+
+      if (tags.gtm && tags.gtm.length > 0) {
+        tagsHtml += `<span class="tag-status-pill tag-found">✓ GTM Detectado (${tags.gtm.join(', ')})</span>`;
+      } else {
+        tagsHtml += `<span class="tag-status-pill tag-missing">✕ GTM Ausente no Site</span>`;
+      }
+
+      if (tags.ga4 && tags.ga4.length > 0) {
+        tagsHtml += `<span class="tag-status-pill tag-found">✓ GA4 Detectado (${tags.ga4.join(', ')})</span>`;
+      } else {
+        tagsHtml += `<span class="tag-status-pill tag-missing">✕ GA4 Ausente</span>`;
+      }
+
+      if (tags.google_ads && tags.google_ads.length > 0) {
+        tagsHtml += `<span class="tag-status-pill tag-found">✓ Google Ads Tag Detectada (${tags.google_ads.join(', ')})</span>`;
+      } else {
+        tagsHtml += `<span class="tag-status-pill tag-missing">✕ Google Ads Tag Ausente</span>`;
+      }
+
+      if (tags.meta_pixel) {
+        tagsHtml += `<span class="tag-status-pill tag-found">✓ Meta Pixel Detectado</span>`;
+      } else {
+        tagsHtml += `<span class="tag-status-pill tag-missing">✕ Meta Pixel Ausente</span>`;
+      }
+
+      auditBox.innerHTML = tagsHtml;
+
+      // Serviços Detectados
+      const servBox = document.getElementById('servicesDetectedList');
+      const services = data.competitors?.core_services || [];
+      if (services.length > 0) {
+        servBox.innerHTML = services.map((s, idx) => `
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 12px 16px; border-radius: 10px; margin-bottom: 8px;">
+            <strong style="color: #60a5fa;">Grupo ${idx + 1}: ${s.name}</strong>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">${s.description}</p>
+          </div>
+        `).join('');
+      } else {
+        servBox.innerHTML = '<p style="color: var(--text-muted); font-size: 13px;">Serviços mapeados automaticamente.</p>';
       }
     }
 
@@ -442,158 +597,195 @@
           <td><code style="color: #60a5fa;">${c.domain}</code></td>
           <td>${c.focus}</td>
           <td>${c.approach}</td>
-          <td><a href="https://adstransparency.google.com/?region=BR&domain=${encodeURIComponent(c.domain)}" target="_blank" style="color: #38bdf8; text-decoration: none;">Ver Anúncios ↗</a></td>
+          <td>${c.weaknesses || 'N/A'}</td>
+          <td><a href="https://adstransparency.google.com/?region=BR&domain=${encodeURIComponent(c.domain)}" target="_blank" style="color: #38bdf8; text-decoration: none; font-weight: 600;">Ver Anúncios ↗</a></td>
         </tr>
       `).join('');
 
       let gapsHtml = (comp.market_gaps || []).map(g => `
         <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 14px; border-radius: 10px; margin-bottom: 10px;">
           <h4 style="color: #93c5fd; margin-bottom: 4px;">${g.title}</h4>
-          <p style="font-size: 13px; color: #cbd5e1;">${g.description}</p>
+          <p style="font-size: 13.5px; color: var(--text-muted);">${g.description}</p>
         </div>
       `).join('');
 
-      let triageHtml = (comp.triage_questions || []).map(q => `<li><em>"${q}"</em></li>`).join('');
+      let triageHtml = (comp.triage_questions || []).map((q, idx) => `
+        <li style="margin-bottom: 6px;"><strong>${idx+1}.</strong> ${q}</li>
+      `).join('');
 
       box.innerHTML = `
         <div class="card-dark">
-          <h3>📊 Resumo do Cenário Competitivo</h3>
-          <p style="font-size: 14px; color: #cbd5e1; line-height: 1.6;">${comp.niche_summary}</p>
+          <h3>📌 Panorama de Mercado & Urgência</h3>
+          <p style="color: #cbd5e1; font-size: 14.5px;">${comp.niche_summary}</p>
         </div>
 
         <div class="card-dark">
-          <h3>🏆 Concorrentes Líderes no Google Ads</h3>
-          <table class="table-custom">
-            <thead>
-              <tr>
-                <th>Concorrente</th>
-                <th>Domínio</th>
-                <th>Foco da Oferta</th>
-                <th>Abordagem</th>
-                <th>Ads Transparency</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${compRows}
-            </tbody>
-          </table>
+          <h3>🎯 Concorrentes Diretos no Leilão do Google Ads</h3>
+          <div style="overflow-x: auto;">
+            <table class="table-custom">
+              <thead>
+                <tr>
+                  <th>Concorrente</th>
+                  <th>Domínio</th>
+                  <th>Foco da Oferta</th>
+                  <th>Abordagem Comercial</th>
+                  <th>Ponto Fraco Explorável</th>
+                  <th>Transparência</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${compRows}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <div class="card-dark">
-          <h3>🎯 As Maiores Brechas e Oportunidades</h3>
-          ${gapsHtml}
-        </div>
+        <div class="form-grid">
+          <div class="card-dark">
+            <h3>⚡ Brechas Comerciais para Ganhar no Leilão</h3>
+            ${gapsHtml}
+          </div>
 
-        <div class="card-dark" style="background: rgba(34, 197, 94, 0.05); border-color: rgba(34, 197, 94, 0.3);">
-          <h3 style="color: #86efac;">⚡ Script de Triagem Rápida no WhatsApp</h3>
-          <ul style="padding-left: 20px; font-size: 13.5px; color: #bbf7d0; line-height: 1.8;">
-            ${triageHtml}
-          </ul>
+          <div class="card-dark">
+            <h3>💬 Roteiro de Triagem & Qualificação no WhatsApp</h3>
+            <ul style="list-style: none; padding-left: 0; font-size: 13.5px; color: #cbd5e1; margin-top: 10px;">
+              ${triageHtml}
+            </ul>
+          </div>
         </div>
       `;
     }
 
     function renderAds(ads) {
       if (!ads) return;
+      
+      // Grupos de Anúncios
+      const groupsBox = document.getElementById('adGroupsList');
+      if (ads.ad_groups && ads.ad_groups.length > 0) {
+        groupsBox.innerHTML = ads.ad_groups.map(g => `
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 14px; border-radius: 12px;">
+            <h4 style="color: #fff; font-size: 15px; margin-bottom: 8px;">📁 ${g.name}</h4>
+            <div style="font-size: 12px; color: #94a3b8; margin-bottom: 6px;">
+              <strong>Exatas:</strong> ${(g.keywords_exact || []).join(', ')}
+            </div>
+            <div style="font-size: 12px; color: #94a3b8;">
+              <strong>Frase:</strong> ${(g.keywords_phrase || []).join(', ')}
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Headlines
       const hList = document.getElementById('headlinesList');
+      const headlines = ads.headlines || [];
+      document.getElementById('headlinesCount').textContent = `${headlines.length}/15`;
+      hList.innerHTML = headlines.map(h => `
+        <div class="ad-item">
+          <span>${h}</span>
+          <span class="ad-chars">${h.length}/30c</span>
+        </div>
+      `).join('');
+
+      // Descriptions
       const dList = document.getElementById('descriptionsList');
-      const negList = document.getElementById('negativesList');
-      hList.innerHTML = '';
-      dList.innerHTML = '';
-      negList.innerHTML = '';
+      const descriptions = ads.descriptions || [];
+      document.getElementById('descCount').textContent = `${descriptions.length}/4`;
+      dList.innerHTML = descriptions.map(d => `
+        <div class="ad-item">
+          <span>${d}</span>
+          <span class="ad-chars">${d.length}/90c</span>
+        </div>
+      `).join('');
 
-      (ads.headlines || []).forEach(h => {
-        hList.innerHTML += `<div class="ad-item"><span>${h}</span><span class="ad-chars">${h.length}/30</span></div>`;
-      });
-      document.getElementById('headlinesCount').textContent = (ads.headlines || []).length + '/15';
+      // Negatives
+      const nList = document.getElementById('negativesList');
+      const negs = ads.negative_keywords || [];
+      nList.innerHTML = negs.map(n => `
+        <span style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.25); color: #fca5a5; padding: 4px 10px; border-radius: 6px; font-size: 12px;">
+          -${n}
+        </span>
+      `).join('');
+    }
 
-      (ads.descriptions || []).forEach(d => {
-        dList.innerHTML += `<div class="ad-item"><span>${d}</span><span class="ad-chars">${d.length}/90</span></div>`;
-      });
-      document.getElementById('descCount').textContent = (ads.descriptions || []).length + '/4';
-
-      (ads.negative_keywords || []).forEach(neg => {
-        negList.innerHTML += `<span style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; padding: 4px 8px; border-radius: 6px; font-size: 11px;">-${neg}</span>`;
-      });
+    function renderTagKit(kit) {
+      if (!kit) return;
+      document.getElementById('gtmHeadSnippet').textContent = kit.gtm_head || '';
+      document.getElementById('gtmBodySnippet').textContent = kit.gtm_body || '';
+      document.getElementById('universalTelemetrySnippet').textContent = kit.universal_telemetry_script || '';
     }
 
     function renderAccessCards(data) {
+      const inv = data.admin_invitations || {};
+      const trk = data.tracking || {};
+
       document.getElementById('gtmCardContent').innerHTML = `
-        <div style="font-size: 13px; color: #fff; margin-bottom: 6px;">Contêiner: <strong>${data.tracking.gtm_id}</strong></div>
-        <span class="badge-admin">✓ Convite de Admin Enviado para ${data.email}</span>
+        <div style="margin-bottom: 8px;"><span class="badge-admin">✓ ${trk.gtm_status}</span></div>
+        <p style="font-size: 13px; color: #cbd5e1;">Contêiner: <strong style="color: #60a5fa;">${trk.gtm_id}</strong></p>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">${inv.gtm}</p>
       `;
 
       document.getElementById('ga4CardContent').innerHTML = `
-        <div style="font-size: 13px; color: #fff; margin-bottom: 6px;">Stream ID: <strong>${data.tracking.ga4_id}</strong></div>
-        <span class="badge-admin">✓ Permissão roles/analytics.admin Atribuída</span>
+        <div style="margin-bottom: 8px;"><span class="badge-admin">✓ ${trk.ga4_status}</span></div>
+        <p style="font-size: 13px; color: #cbd5e1;">Propriedade GA4: <strong style="color: #60a5fa;">${trk.ga4_id}</strong></p>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">${inv.ga4}</p>
       `;
 
       document.getElementById('gscCardContent').innerHTML = `
-        <div style="font-size: 13px; color: #fff; margin-bottom: 6px;">Permissão: <strong>siteOwner</strong></div>
-        <span class="badge-admin">✓ Proprietário Registrado</span>
+        <div style="margin-bottom: 8px;"><span class="badge-admin">✓ ${trk.search_console_status}</span></div>
+        <p style="font-size: 13px; color: #cbd5e1;">Site Verificado: <strong style="color: #60a5fa;">${data.site_url}</strong></p>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">${inv.search_console}</p>
       `;
 
       document.getElementById('adsCardContent').innerHTML = `
-        <div style="font-size: 13px; color: #fff; margin-bottom: 6px;">Conta: <strong>${data.tracking.ads_cid}</strong></div>
-        <a href="${data.admin_invitations.ads_direct_link}" target="_blank" class="badge-admin" style="text-decoration: none; color: #86efac; cursor: pointer;">
-          ✓ Aceitar Convite de Admin no Google Ads ↗
-        </a>
+        <div style="margin-bottom: 8px;"><span class="badge-admin">✓ Conta Vinculada</span></div>
+        <p style="font-size: 13px; color: #cbd5e1;">Customer ID: <strong style="color: #60a5fa;">${trk.ads_cid}</strong></p>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">${inv.google_ads}</p>
+        <div style="margin-top: 12px;">
+          <a href="${inv.ads_direct_link}" target="_blank" class="btn-download" style="padding: 8px 14px; font-size: 12px; background: rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.4);">
+            🔗 Abrir Gerenciamento de Usuários Ads ↗
+          </a>
+        </div>
       `;
-    }
-
-    function setIframeDevice(device, btn) {
-      document.querySelectorAll('.device-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const iframe = document.getElementById('siteIframe');
-      iframe.style.width = device === 'mobile' ? '390px' : '100%';
-      iframe.style.margin = device === 'mobile' ? '0 auto' : '0';
-      iframe.style.display = 'block';
-    }
-
-    function openNewTab() {
-      if (!currentGeneratedData) return;
-      const w = window.open();
-      w.document.write(currentGeneratedData.site_html);
-      w.document.close();
-    }
-
-    function downloadSiteHtml() {
-      if (!currentGeneratedData) return;
-      const blob = new Blob([currentGeneratedData.site_html], { type: 'text/html' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'index.html';
-      a.click();
     }
 
     function downloadDossierMd() {
       if (!currentGeneratedData) return;
-      const c = currentGeneratedData.competitors;
-      const md = `# Dossiê de Inteligência & Concorrentes — ${currentGeneratedData.business_name}
-Nicho: ${currentGeneratedData.niche} | Região: ${currentGeneratedData.region}
+      const comp = currentGeneratedData.competitors;
+      let md = `# Dossiê de Inteligência Competitiva - ${currentGeneratedData.business_name}\n`;
+      md += `**Site:** ${currentGeneratedData.site_url}\n`;
+      md += `**Data:** ${new Date().toLocaleDateString()}\n\n`;
+      md += `## 1. Panorama do Nicho\n${comp.niche_summary}\n\n`;
+      md += `## 2. Concorrentes no Google Ads\n`;
+      (comp.competitors || []).forEach((c, i) => {
+        md += `### ${i+1}. ${c.name} (${c.domain})\n- **Foco:** ${c.focus}\n- **Abordagem:** ${c.approach}\n- **Ponto Fraco:** ${c.weaknesses || 'N/A'}\n\n`;
+      });
+      md += `## 3. Brechas Comerciais\n`;
+      (comp.market_gaps || []).forEach(g => {
+        md += `- **${g.title}:** ${g.description}\n`;
+      });
 
-## Cenário
-${c.niche_summary}
-
-## Concorrentes
-${(c.competitors || []).map((x, i) => `${i+1}. **${x.name}** (${x.domain})\n   - Foco: ${x.focus}\n   - Abordagem: ${x.approach}`).join('\n\n')}
-
-## Brechas de Mercado
-${(c.market_gaps || []).map(g => `### ${g.title}\n${g.description}`).join('\n\n')}
-`;
       const blob = new Blob([md], { type: 'text/markdown' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `dossie_concorrentes_${currentGeneratedData.business_name.toLowerCase().replace(/ /g, '_')}.md`;
+      a.download = `dossie_concorrentes_${currentGeneratedData.business_name.toLowerCase().replace(/\\s+/g, '_')}.md`;
       a.click();
     }
 
     function downloadAdsCsv() {
-      if (!currentGeneratedData) return;
+      if (!currentGeneratedData || !currentGeneratedData.csv_content) return;
       const blob = new Blob([currentGeneratedData.csv_content], { type: 'text/csv;charset=utf-8;' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'google_ads_import.csv';
+      a.download = `google_ads_editor_${currentGeneratedData.business_name.toLowerCase().replace(/\\s+/g, '_')}.csv`;
+      a.click();
+    }
+
+    function downloadTagGuideMd() {
+      if (!currentGeneratedData || !currentGeneratedData.tag_kit) return;
+      const blob = new Blob([currentGeneratedData.tag_kit.guide_markdown], { type: 'text/markdown' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `guia_instalacao_tags_${currentGeneratedData.business_name.toLowerCase().replace(/\\s+/g, '_')}.md`;
       a.click();
     }
   </script>
