@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LaunchPilot — Automação de Sites, GTM, GA4, Ads e Search Console</title>
-  <meta name="description" content="Lançamento automatizado de Landing Pages com rastreamento oficial Google Tag Manager, GA4 e Google Ads em 60 segundos.">
+  <title>LaunchPilot — Automação Turnkey de Sites, GTM, GA4 e Google Ads</title>
+  <meta name="description" content="Lançamento automatizado de sites multi-páginas com rastreamento oficial Google Tag Manager, GA4 e Google Ads em 60 segundos com delegação de acesso Admin.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -22,279 +22,320 @@
     }
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
     body { background-color: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; overflow-x: hidden; }
-    
-    /* Background Glow */
-    .glow-orb { position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(0, 0, 0, 0) 70%); top: -100px; left: 50%; transform: translateX(-50%); pointer-events: none; z-index: 0; }
 
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+    /* Top Banner */
+    .top-announcement { background: linear-gradient(90deg, #1e1b4b, #312e81, #1e1b4b); border-bottom: 1px solid rgba(99, 102, 241, 0.2); padding: 9px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #c7d2fe; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .status-pill { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 8px #22c55e; }
 
-    /* Header */
-    header { padding: 20px 0; border-bottom: 1px solid var(--border); backdrop-filter: blur(16px); background: rgba(7, 9, 14, 0.75); position: sticky; top: 0; z-index: 50; }
-    .nav-wrap { display: flex; justify-content: space-between; align-items: center; }
-    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
-    .brand-badge { background: linear-gradient(135deg, #2563eb, #38bdf8); color: #fff; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 99px; text-transform: uppercase; }
-    .nav-links { display: flex; gap: 20px; align-items: center; }
-    .nav-link { color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
-    .nav-link:hover { color: #fff; }
+    /* Nav */
+    nav { padding: 18px 32px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(12px); background: rgba(7, 9, 14, 0.8); position: sticky; top: 0; z-index: 50; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; color: #fff; letter-spacing: -0.5px; }
+    .brand-badge { background: linear-gradient(135deg, var(--accent), #60a5fa); font-size: 10px; padding: 3px 8px; border-radius: 99px; text-transform: uppercase; font-weight: 700; color: #fff; }
+    .agency-tag { font-size: 12px; color: var(--text-muted); background: rgba(255, 255, 255, 0.05); padding: 6px 14px; border-radius: 99px; border: 1px solid var(--border); }
 
     /* Hero */
-    .hero { text-align: center; padding: 60px 0 40px; }
-    .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.25); color: #93c5fd; padding: 6px 16px; border-radius: 99px; font-size: 13px; font-weight: 600; margin-bottom: 24px; }
-    .hero h1 { font-size: 48px; font-weight: 800; line-height: 1.15; max-width: 900px; margin: 0 auto 18px; letter-spacing: -1.5px; }
-    .hero h1 span { background: linear-gradient(135deg, #60a5fa, #38bdf8, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .hero p { font-size: 18px; color: var(--text-muted); max-width: 680px; margin: 0 auto; }
+    .hero { text-align: center; padding: 50px 24px 30px; max-width: 900px; margin: 0 auto; }
+    .hero-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.25); color: #93c5fd; padding: 6px 16px; border-radius: 99px; font-size: 13px; font-weight: 600; margin-bottom: 20px; }
+    h1 { font-size: 44px; font-weight: 800; letter-spacing: -1.2px; line-height: 1.15; margin-bottom: 16px; }
+    h1 span { background: linear-gradient(135deg, #60a5fa, #38bdf8, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    p.lead { font-size: 17px; color: var(--text-muted); max-width: 680px; margin: 0 auto 30px; }
 
-    /* Main App Interface */
-    .app-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); backdrop-filter: blur(20px); margin: 40px auto 80px; overflow: hidden; }
+    /* Main Container */
+    .main-wrap { max-width: 1240px; margin: 0 auto 80px; padding: 0 24px; }
     
-    /* Tabs */
-    .tabs-header { display: flex; border-bottom: 1px solid var(--border); background: rgba(0, 0, 0, 0.3); overflow-x: auto; }
-    .tab-btn { padding: 16px 24px; background: none; border: none; color: var(--text-muted); font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
-    .tab-btn:hover { color: #fff; }
-    .tab-btn.active { color: #fff; border-bottom-color: var(--accent); background: rgba(59, 130, 246, 0.06); }
-    .tab-badge { background: rgba(59, 130, 246, 0.2); color: #93c5fd; font-size: 11px; padding: 2px 6px; border-radius: 6px; }
+    /* Workspace Card */
+    .workspace-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.5); backdrop-filter: blur(20px); }
 
-    .tab-content { padding: 36px; display: none; }
+    /* Tabs */
+    .tabs-bar { display: flex; gap: 4px; padding: 8px 16px; border-bottom: 1px solid var(--border); background: rgba(0, 0, 0, 0.35); overflow-x: auto; }
+    .tab-btn { padding: 14px 20px; background: none; border: none; color: var(--text-muted); font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; border-radius: 8px 8px 0 0; }
+    .tab-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.03); }
+    .tab-btn.active { color: #fff; border-bottom-color: var(--accent); background: rgba(59, 130, 246, 0.08); }
+    .tab-badge { background: rgba(59, 130, 246, 0.2); color: #93c5fd; font-size: 11px; padding: 2px 7px; border-radius: 6px; }
+
+    .tab-content { padding: 32px; display: none; }
     .tab-content.active { display: block; }
 
     /* Form Grid */
-    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
     .form-group { display: flex; flex-direction: column; gap: 8px; }
-    .form-group.full { grid-column: span 2; }
-    label { font-size: 13px; font-weight: 600; color: #cbd5e1; }
-    label span { color: #ef4444; }
-    input, select, textarea { background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; color: #fff; font-size: 14px; outline: none; transition: border-color 0.2s; }
-    input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: 13px; font-weight: 600; color: #e2e8f0; display: flex; justify-content: space-between; }
+    label span { color: #f43f5e; }
+    input[type="text"], input[type="email"], select, textarea {
+      background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; color: #fff; font-size: 14px; outline: none; transition: all 0.2s; width: 100%;
+    }
+    input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
     
-    /* Plan selector cards */
-    .plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 6px; }
-    .plan-option { border: 2px solid var(--border); border-radius: 14px; padding: 18px; cursor: pointer; transition: all 0.2s; background: rgba(255, 255, 255, 0.02); }
-    .plan-option:hover { border-color: rgba(59, 130, 246, 0.4); }
-    .plan-option.selected { border-color: var(--accent); background: rgba(59, 130, 246, 0.08); }
-    .plan-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
-    .plan-desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+    .colors-wrap { display: flex; gap: 16px; align-items: center; }
+    .color-box { display: flex; align-items: center; gap: 8px; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border); padding: 8px 12px; border-radius: 10px; font-size: 13px; }
+    .color-box input[type="color"] { border: none; width: 28px; height: 28px; border-radius: 6px; background: none; cursor: pointer; }
 
     /* Action Button */
-    .btn-submit { width: 100%; padding: 18px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; font-size: 16px; font-weight: 700; border: none; border-radius: 14px; cursor: pointer; box-shadow: 0 10px 30px var(--accent-glow); transition: all 0.25s ease; display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 24px; }
-    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 14px 35px rgba(59, 130, 246, 0.6); }
+    .btn-submit {
+      margin-top: 24px; width: 100%; padding: 18px 28px; background: linear-gradient(135deg, var(--accent), var(--accent-hover)); color: #fff; border: none; border-radius: 14px; font-size: 16px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 30px -5px var(--accent-glow); transition: all 0.25s ease;
+    }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 15px 35px -5px rgba(59, 130, 246, 0.6); }
     .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-    /* Console Logger */
-    .console-box { background: #04060a; border: 1px solid var(--border); border-radius: 14px; padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #10b981; max-height: 280px; overflow-y: auto; margin-top: 24px; display: none; }
-    .console-line { margin-bottom: 6px; display: flex; gap: 8px; }
-    .console-time { color: #64748b; }
+    /* Terminal Console */
+    .console-box { margin-top: 24px; background: #04060a; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #94a3b8; max-height: 240px; overflow-y: auto; display: none; }
+    .console-line { margin-bottom: 6px; display: flex; gap: 10px; }
+    .console-time { color: #475569; }
 
-    /* Preview Tab */
-    .preview-container { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: #000; height: 600px; display: flex; flex-direction: column; }
-    .preview-bar { background: #1e293b; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
-    .preview-actions { display: flex; gap: 8px; }
-    .btn-sm { padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.06); color: #fff; cursor: pointer; font-size: 12px; text-decoration: none; }
-    .btn-sm:hover { background: rgba(255,255,255,0.12); }
-    iframe { width: 100%; height: 100%; border: none; background: #fff; }
+    /* Preview Section */
+    .preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+    .device-switcher { display: flex; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; padding: 4px; }
+    .device-btn { background: none; border: none; color: var(--text-muted); padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; }
+    .device-btn.active { background: rgba(255,255,255,0.08); color: #fff; }
+    .iframe-container { border: 1px solid var(--border); border-radius: 16px; overflow: hidden; height: 680px; background: #fff; transition: all 0.3s ease; }
+    iframe { width: 100%; height: 100%; border: none; }
 
-    /* Ads tab cards */
-    .ads-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .ads-card { background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
-    .ads-card h3 { font-size: 15px; margin-bottom: 12px; color: #fff; display: flex; justify-content: space-between; }
-    .ads-list { display: flex; flex-direction: column; gap: 8px; }
-    .ad-item { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); padding: 8px 12px; border-radius: 8px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
-    .ad-chars { font-size: 11px; color: var(--text-muted); }
+    /* Dossier & Ads Styling */
+    .card-dark { background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+    .card-dark h3 { font-size: 18px; margin-bottom: 12px; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .table-custom { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+    .table-custom th { background: rgba(255, 255, 255, 0.05); padding: 10px 12px; text-align: left; color: #cbd5e1; font-weight: 700; border-bottom: 1px solid var(--border); }
+    .table-custom td { padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); color: #94a3b8; }
+    .badge-admin { background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); color: #86efac; padding: 4px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+    .ad-item { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; display: flex; justify-content: space-between; }
+    .ad-chars { color: #64748b; font-size: 11px; }
 
-    /* Chat Copilot Tab */
-    .chat-box { height: 450px; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: rgba(0, 0, 0, 0.2); }
-    .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
-    .chat-msg { max-width: 80%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
-    .chat-msg.bot { background: #1e293b; color: #f8fafc; align-self: flex-start; border: 1px solid var(--border); }
-    .chat-msg.user { background: var(--accent); color: #fff; align-self: flex-end; }
-    .chat-input-bar { display: flex; padding: 12px; background: rgba(0,0,0,0.4); border-top: 1px solid var(--border); gap: 10px; }
-    .chat-input-bar input { flex: 1; }
+    .btn-download { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+    .btn-download:hover { background: rgba(255, 255, 255, 0.15); }
 
     @media (max-width: 768px) {
-      .hero h1 { font-size: 32px; }
-      .form-grid, .ads-grid, .plan-grid { grid-template-columns: 1fr; }
-      .form-group.full { grid-column: span 1; }
-      .tab-content { padding: 20px; }
+      .form-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 32px; }
+      nav { padding: 14px 16px; }
     }
   </style>
 </head>
 <body>
-  <div class="glow-orb"></div>
-  
-  <header>
-    <div class="container nav-wrap">
-      <a href="/" class="brand">
-        🚀 LaunchPilot
-        <span class="brand-badge">Engine v1.0</span>
-      </a>
-      <div class="nav-links">
-        <a href="https://github.com/rafaelchat/LaunchPilot" target="_blank" class="btn-sm">⭐ GitHub Repositório</a>
-      </div>
+
+  <div class="top-announcement">
+    <span class="status-pill"></span>
+    LaunchPilot Engine Online — Infraestrutura Google Cloud Centralizada via agenciaadlovers@gmail.com
+  </div>
+
+  <nav>
+    <div class="brand">
+      🚀 LaunchPilot
+      <span class="brand-badge">Turnkey v2.0</span>
     </div>
-  </header>
+    <div class="agency-tag">
+      🏢 Conta Central: agenciaadlovers@gmail.com
+    </div>
+  </nav>
 
-  <main class="container">
-    <section class="hero">
-      <div class="hero-badge">
-        ⚡ Automação Turnkey: Pagou, Rodou
-      </div>
-      <h1>Lançamento de Site & <span>Google MarTech</span> em 60 Segundos</h1>
-      <p>Insira os dados do negócio, adicione o e-mail de acesso e a nossa inteligência gera a Landing Page, Contêiner GTM, GA4, Metas do Google Ads e Search Console automaticamente.</p>
-    </section>
+  <div class="hero">
+    <div class="hero-tag">
+      ⚡ Esteira Industrial de Lançamento de Clientes
+    </div>
+    <h1>Lançamento Turnkey de Sites, <span>GTM, GA4 e Google Ads</span></h1>
+    <p class="lead">
+      Insira os dados do cliente online. Nosso motor pesquisa concorrentes, compila o site multi-páginas com deduplicação por orderId, cria os contêineres na agência e convida o cliente como Administrador.
+    </p>
+  </div>
 
-    <div class="app-card">
-      <div class="tabs-header">
+  <div class="main-wrap">
+    <div class="workspace-card">
+      <div class="tabs-bar">
         <button class="tab-btn active" onclick="switchTab('form')">
-          ⚙️ 1. Orquestrador de Lançamento
+          📝 1. Dados do Cliente
         </button>
         <button class="tab-btn" onclick="switchTab('preview')">
-          👁️ 2. Preview do Site <span class="tab-badge" id="previewBadge">Aguardando</span>
+          🖥️ 2. Preview do Site <span id="previewBadge" class="tab-badge">Aguardando</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('dossier')">
+          🕵️ 3. Dossiê de Concorrentes
         </button>
         <button class="tab-btn" onclick="switchTab('ads')">
-          📢 3. Anúncios do Google Ads
+          🎯 4. Google Ads (RSAs & Negativas)
         </button>
-        <button class="tab-btn" onclick="switchTab('copilot')">
-          🤖 4. Studio Copilot (Chat IA)
+        <button class="tab-btn" onclick="switchTab('access')">
+          🔑 5. Acessos & Admin Delegado
         </button>
       </div>
 
-      <!-- Tab 1: Form -->
+      <!-- TAB 1: FORM -->
       <div id="tab-form" class="tab-content active">
         <form id="launchForm" onsubmit="handleLaunch(event)">
           <div class="form-grid">
             <div class="form-group">
               <label>Nome da Empresa / Profissional <span>*</span></label>
-              <input type="text" id="business_name" required placeholder="Ex: Dra. Juliana Silva Advocacia" value="Especialistas em Desbloqueio e Defesa Online">
+              <input type="text" id="business_name" required placeholder="Ex: Dra. Beatriz Mendes Advocacia" value="Dra. Beatriz Mendes">
             </div>
 
             <div class="form-group">
-              <label>Nicho / Segmento de Atuação <span>*</span></label>
-              <input type="text" id="niche" required placeholder="Ex: Desbloqueio de Contas de Marketplace" value="Desbloqueio de Contas Mercado Livre, Shopee e Amazon">
+              <label>Nicho / Especialidade de Atuação <span>*</span></label>
+              <input type="text" id="niche" required placeholder="Ex: Direito Médico e Defesa de Médicos" value="Direito Médico e Defesa de Médicos">
             </div>
 
             <div class="form-group">
-              <label>Público-Alvo Principal <span>*</span></label>
-              <input type="text" id="audience" required placeholder="Ex: Sellers, lojistas e e-commerces" value="Sellers que tiveram contas inabilitadas ou saldo retido">
+              <label>Praça / Região de Atendimento <span>*</span></label>
+              <input type="text" id="region" required placeholder="Ex: São Paulo - SP ou Brasil Todo" value="São Paulo - SP">
             </div>
 
             <div class="form-group">
-              <label>WhatsApp de Conversão (com DDD) <span>*</span></label>
-              <input type="text" id="whatsapp" required placeholder="5511999998888" value="5511999998888">
+              <label>WhatsApp de Atendimento com DDD <span>*</span></label>
+              <input type="text" id="whatsapp" required placeholder="5511987654321" value="5511987654321">
             </div>
 
             <div class="form-group full">
-              <label>E-mail para Receber Permissões de Administrador <span>*</span></label>
-              <input type="email" id="email" required placeholder="cliente@gmail.com" value="agenciaadlovers@gmail.com">
-              <span style="font-size: 11px; color: #94a3b8;">A API enviará os convites de Admin do GTM, GA4 e Search Console diretamente para este endereço.</span>
+              <label>Público-Alvo Principal</label>
+              <input type="text" id="audience" placeholder="Ex: Médicos, clínicas e hospitais com processos éticos no CRM ou ações indenizatórias" value="Médicos e clínicas com processos éticos no CRM ou ações judiciais">
             </div>
 
             <div class="form-group full">
-              <label>Escolha o Modelo de Serviço <span>*</span></label>
-              <div class="plan-grid">
-                <div class="plan-option selected" id="optPlanA" onclick="selectPlan('A')">
-                  <div class="plan-title">
-                    <span>Plano A: Express Launch</span>
-                    <span style="color: #60a5fa; font-size: 12px;">Turnkey 100% Auto</span>
-                  </div>
-                  <div class="plan-desc">
-                    Rodamos a esteira completa: Landing Page pronta, GTM, GA4, Ads e convite no e-mail em 1 clique.
-                  </div>
+              <label>E-mail do Cliente para Receber Convites de Administrador <span>*</span></label>
+              <input type="email" id="email" required placeholder="cliente@gmail.com" value="cliente@exemplo.com.br">
+              <span style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                ✓ Este e-mail receberá permissão de Administrador no GTM, GA4, Google Search Console e Google Ads.
+              </span>
+            </div>
+
+            <div class="form-group full">
+              <label>Paleta de Cores da Marca</label>
+              <div class="colors-wrap">
+                <div class="color-box">
+                  <span>Cor Primária (Fundo/Header):</span>
+                  <input type="color" id="primary_color" value="#07090e">
                 </div>
-
-                <div class="plan-option" id="optPlanB" onclick="selectPlan('B')">
-                  <div class="plan-title">
-                    <span>Plano B: Growth Studio Copilot</span>
-                    <span style="color: #a855f7; font-size: 12px;">Com Chat Interativo</span>
-                  </div>
-                  <div class="plan-desc">
-                    Tudo do Plano A + Chat com IA integrado para solicitar alterações na página com deploy em tempo real.
-                  </div>
+                <div class="color-box">
+                  <span>Cor de Destaque / Botões:</span>
+                  <input type="color" id="accent_color" value="#2563eb">
                 </div>
               </div>
             </div>
-
-            <div class="form-group">
-              <label>Cor Primária (Fundo/Borda)</label>
-              <input type="color" id="primary_color" value="#0f172a" style="height: 48px; padding: 4px; cursor: pointer;">
-            </div>
-
-            <div class="form-group">
-              <label>Cor de Destaque (Botões/Gradientes)</label>
-              <input type="color" id="accent_color" value="#2563eb" style="height: 48px; padding: 4px; cursor: pointer;">
-            </div>
           </div>
 
-          <button type="submit" class="btn-submit" id="btnSubmit">
-            <span>🚀 Disparar Esteira de Lançamento (Pagou, Rodou)</span>
+          <button type="submit" id="btnSubmit" class="btn-submit">
+            <span>🚀 Executar Esteira Turnkey & Criar Estrutura Completa</span>
           </button>
         </form>
 
-        <div class="console-box" id="consoleBox">
+        <div id="consoleBox" class="console-box">
           <div id="consoleLogs"></div>
         </div>
       </div>
 
-      <!-- Tab 2: Preview -->
+      <!-- TAB 2: PREVIEW -->
       <div id="tab-preview" class="tab-content">
-        <div class="preview-container">
-          <div class="preview-bar">
-            <span id="previewStatus">Visualizando site gerado pela inteligência</span>
-            <div class="preview-actions">
-              <button class="btn-sm" onclick="setIframeDevice('desktop')">💻 Desktop</button>
-              <button class="btn-sm" onclick="setIframeDevice('mobile')">📱 Mobile</button>
-              <button class="btn-sm" onclick="openNewTab()">↗️ Abrir Site</button>
-            </div>
+        <div class="preview-header">
+          <div>
+            <h3 style="font-size: 18px; color: #fff;">Preview do Site Compilado</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">Site responsivo com telemetria de 19+ botões e deduplicação de leads por orderId</p>
           </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <div class="device-switcher">
+              <button class="device-btn active" onclick="setIframeDevice('desktop', this)">Desktop</button>
+              <button class="device-btn" onclick="setIframeDevice('mobile', this)">Mobile (iPhone)</button>
+            </div>
+            <button class="btn-download" onclick="openNewTab()">↗ Abrir em Nova Aba</button>
+            <button class="btn-download" onclick="downloadSiteHtml()">⬇ Baixar HTML</button>
+          </div>
+        </div>
+        <div class="iframe-container">
           <iframe id="siteIframe"></iframe>
         </div>
       </div>
 
-      <!-- Tab 3: Ads -->
+      <!-- TAB 3: DOSSIÊ DE CONCORRENTES -->
+      <div id="tab-dossier" class="tab-content">
+        <div class="preview-header">
+          <div>
+            <h3 style="font-size: 18px; color: #fff;">Dossiê de Inteligência & Espionagem Competitiva</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">Engenharia reversa dos concorrentes ativos no Google Ads e brechas exploráveis</p>
+          </div>
+          <button class="btn-download" onclick="downloadDossierMd()">⬇ Baixar Dossiê (.md)</button>
+        </div>
+        
+        <div id="dossierContent">
+          <p style="color: var(--text-muted);">Preencha os dados e execute a esteira para visualizar o dossiê completo de concorrentes.</p>
+        </div>
+      </div>
+
+      <!-- TAB 4: GOOGLE ADS -->
       <div id="tab-ads" class="tab-content">
-        <div class="ads-grid">
-          <div class="ads-card">
-            <h3>Títulos Responsivos (Google Ads) <span class="tab-badge" id="headlinesCount">0/15</span></h3>
-            <div class="ads-list" id="headlinesList">
-              <div style="color: #64748b; font-size: 13px;">Execute o lançamento na aba 1 para gerar os títulos.</div>
+        <div class="preview-header">
+          <div>
+            <h3 style="font-size: 18px; color: #fff;">Campanha para Google Ads (RSAs & Negativas)</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">Matriz de 15 títulos, 4 descrições, grupos segmentados e lista de negativas</p>
+          </div>
+          <button class="btn-download" onclick="downloadAdsCsv()">⬇ Baixar CSV Google Ads Editor</button>
+        </div>
+
+        <div class="form-grid">
+          <div class="card-dark">
+            <h3>Títulos Responsivos RSA (<span id="headlinesCount">0/15</span>)</h3>
+            <div id="headlinesList">
+              <p style="color: var(--text-muted); font-size: 13px;">Execute a esteira para gerar os títulos validados.</p>
             </div>
           </div>
 
-          <div class="ads-card">
-            <h3>Descrições Persuasivas <span class="tab-badge" id="descCount">0/4</span></h3>
-            <div class="ads-list" id="descriptionsList">
-              <div style="color: #64748b; font-size: 13px;">Execute o lançamento na aba 1 para gerar as descrições.</div>
+          <div class="card-dark">
+            <h3>Descrições Responsivas RSA (<span id="descCount">0/4</span>)</h3>
+            <div id="descriptionsList">
+              <p style="color: var(--text-muted); font-size: 13px;">Execute a esteira para gerar as descrições.</p>
+            </div>
+            
+            <h3 style="margin-top: 24px;">Palavras-Chave Negativas</h3>
+            <div id="negativesList" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">
+              <span style="color: var(--text-muted); font-size: 13px;">Aguardando geração...</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Tab 4: Copilot -->
-      <div id="tab-copilot" class="tab-content">
-        <div class="chat-box">
-          <div class="chat-messages" id="chatMessages">
-            <div class="chat-msg bot">
-              👋 Olá! Sou o Copilot do LaunchPilot. Assim que seu site for gerado, você pode me pedir ajustes como:<br>
-              <em>"Mude a cor do botão para verde"</em>, <em>"Adicione mais um benefício"</em> ou <em>"Reforce a urgência na headline"</em>.
+      <!-- TAB 5: ACESSOS ADMIN -->
+      <div id="tab-access" class="tab-content">
+        <div class="preview-header">
+          <div>
+            <h3 style="font-size: 18px; color: #fff;">Acessos de Administrador Delegados ao Cliente</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">Contas provisionadas sob agenciaadlovers@gmail.com com convite enviado ao cliente</p>
+          </div>
+        </div>
+
+        <div id="accessCardsGrid" class="form-grid">
+          <div class="card-dark">
+            <h3>🏷️ Google Tag Manager</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Contêiner Web configurado com tags deduplicadas e Consent Mode V2.</p>
+            <div id="gtmCardContent">
+              <span class="badge-admin">✓ Aguardando execução</span>
             </div>
           </div>
-          <div class="chat-input-bar">
-            <input type="text" id="copilotInput" placeholder="Digite uma alteração que deseja fazer no site..." onkeydown="if(event.key==='Enter') sendCopilotMsg()">
-            <button class="btn-sm" style="background: var(--accent); padding: 0 20px;" onclick="sendCopilotMsg()">Enviar</button>
+
+          <div class="card-dark">
+            <h3>📊 Google Analytics 4</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Propriedade e Stream de dados com dimensões customizadas de order_id e btn_name.</p>
+            <div id="ga4CardContent">
+              <span class="badge-admin">✓ Aguardando execução</span>
+            </div>
+          </div>
+
+          <div class="card-dark">
+            <h3>🔍 Google Search Console</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Propriedade verificada e sitemap.xml submetido para indexação orgânica.</p>
+            <div id="gscCardContent">
+              <span class="badge-admin">✓ Aguardando execução</span>
+            </div>
+          </div>
+
+          <div class="card-dark">
+            <h3>🎯 Google Ads MCC</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Conta vinculada na agência (MCC 491-198-0801) com convite de Administrador.</p>
+            <div id="adsCardContent">
+              <span class="badge-admin">✓ Aguardando execução</span>
+            </div>
           </div>
         </div>
       </div>
-
     </div>
-  </main>
+  </div>
 
   <script>
-    let currentPlan = 'A';
     let currentGeneratedData = null;
-
-    function selectPlan(plan) {
-      currentPlan = plan;
-      document.getElementById('optPlanA').classList.toggle('selected', plan === 'A');
-      document.getElementById('optPlanB').classList.toggle('selected', plan === 'B');
-    }
 
     function switchTab(tabId) {
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -323,22 +364,23 @@
       e.preventDefault();
       const btn = document.getElementById('btnSubmit');
       btn.disabled = true;
-      btn.innerHTML = '<span>⚡ Processando Esteira com IA e Google APIs...</span>';
+      btn.innerHTML = '<span>⚡ Processando Esteira com IA e Google Cloud...</span>';
       
       const payload = {
         business_name: document.getElementById('business_name').value,
         niche: document.getElementById('niche').value,
+        region: document.getElementById('region').value,
         audience: document.getElementById('audience').value,
         whatsapp: document.getElementById('whatsapp').value,
         email: document.getElementById('email').value,
-        plan: currentPlan,
         primary_color: document.getElementById('primary_color').value,
         accent_color: document.getElementById('accent_color').value
       };
 
       document.getElementById('consoleLogs').innerHTML = '';
-      logToConsole('🚀 Iniciando esteira de lançamento para: ' + payload.business_name);
-      logToConsole('🤖 Conectando ao Google Gemini para análise de mercado e copy...');
+      logToConsole('🚀 Iniciando esteira turnkey para: ' + payload.business_name);
+      logToConsole('🕵️ Realizando espionagem competitiva e engenharia reversa no nicho: ' + payload.niche);
+      logToConsole('🧠 Google Gemini gerando copy multi-páginas e matriz de anúncios RSA...');
 
       try {
         const resp = await fetch('/api/generate', {
@@ -354,11 +396,11 @@
         const data = await resp.json();
         currentGeneratedData = data;
 
-        logToConsole('✓ Copy persuasiva e títulos do Google Ads gerados pelo Gemini.');
-        logToConsole('✓ Contêiner Google Tag Manager provisionado: ' + data.tracking.gtm_id);
-        logToConsole('✓ Google Analytics 4 conectado: ' + data.tracking.ga4_id);
+        logToConsole('✓ Dossiê de concorrentes concluído com análise de leilão e brechas.');
+        logToConsole('✓ Copywriting gerada com sucesso para Home e verticais.');
+        logToConsole('✓ Contêiner GTM provisionado: ' + data.tracking.gtm_id);
+        logToConsole('✓ GA4 conectado: ' + data.tracking.ga4_id);
         logToConsole('✓ Google Ads: Ação de conversão registrada (' + data.tracking.ads_conversion_label + ')');
-        logToConsole('✓ Search Console: Sitemap submetido.');
         logToConsole('✉️ Convite de Administrador enviado para: ' + data.email);
         logToConsole('🎉 SITE NO AR! Renderizando preview...');
 
@@ -368,20 +410,21 @@
         document.getElementById('previewBadge').textContent = 'Pronto!';
         document.getElementById('previewBadge').style.background = '#10b981';
 
+        // Renderiza Dossiê de Concorrentes
+        renderDossier(data.competitors);
+
         // Renderiza Google Ads
         renderAds(data.copy.google_ads);
+
+        // Renderiza Acessos Admin
+        renderAccessCards(data);
 
         btn.disabled = false;
         btn.innerHTML = '<span>✓ Esteira Concluída com Sucesso! (Clique para gerar outro)</span>';
 
         setTimeout(() => {
-          if (currentPlan === 'B') {
-            switchTab('copilot');
-            addCopilotMsg('Seu site e anúncios foram criados com sucesso! Deseja que eu faça algum ajuste agora?', 'bot');
-          } else {
-            switchTab('preview');
-          }
-        }, 1500);
+          switchTab('preview');
+        }, 1200);
 
       } catch (err) {
         logToConsole('❌ Erro: ' + err.message);
@@ -390,12 +433,74 @@
       }
     }
 
+    function renderDossier(comp) {
+      if (!comp) return;
+      const box = document.getElementById('dossierContent');
+      let compRows = (comp.competitors || []).map((c, i) => `
+        <tr>
+          <td><strong>${i+1}. ${c.name}</strong></td>
+          <td><code style="color: #60a5fa;">${c.domain}</code></td>
+          <td>${c.focus}</td>
+          <td>${c.approach}</td>
+          <td><a href="https://adstransparency.google.com/?region=BR&domain=${encodeURIComponent(c.domain)}" target="_blank" style="color: #38bdf8; text-decoration: none;">Ver Anúncios ↗</a></td>
+        </tr>
+      `).join('');
+
+      let gapsHtml = (comp.market_gaps || []).map(g => `
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 14px; border-radius: 10px; margin-bottom: 10px;">
+          <h4 style="color: #93c5fd; margin-bottom: 4px;">${g.title}</h4>
+          <p style="font-size: 13px; color: #cbd5e1;">${g.description}</p>
+        </div>
+      `).join('');
+
+      let triageHtml = (comp.triage_questions || []).map(q => `<li><em>"${q}"</em></li>`).join('');
+
+      box.innerHTML = `
+        <div class="card-dark">
+          <h3>📊 Resumo do Cenário Competitivo</h3>
+          <p style="font-size: 14px; color: #cbd5e1; line-height: 1.6;">${comp.niche_summary}</p>
+        </div>
+
+        <div class="card-dark">
+          <h3>🏆 Concorrentes Líderes no Google Ads</h3>
+          <table class="table-custom">
+            <thead>
+              <tr>
+                <th>Concorrente</th>
+                <th>Domínio</th>
+                <th>Foco da Oferta</th>
+                <th>Abordagem</th>
+                <th>Ads Transparency</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${compRows}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card-dark">
+          <h3>🎯 As Maiores Brechas e Oportunidades</h3>
+          ${gapsHtml}
+        </div>
+
+        <div class="card-dark" style="background: rgba(34, 197, 94, 0.05); border-color: rgba(34, 197, 94, 0.3);">
+          <h3 style="color: #86efac;">⚡ Script de Triagem Rápida no WhatsApp</h3>
+          <ul style="padding-left: 20px; font-size: 13.5px; color: #bbf7d0; line-height: 1.8;">
+            ${triageHtml}
+          </ul>
+        </div>
+      `;
+    }
+
     function renderAds(ads) {
       if (!ads) return;
       const hList = document.getElementById('headlinesList');
       const dList = document.getElementById('descriptionsList');
+      const negList = document.getElementById('negativesList');
       hList.innerHTML = '';
       dList.innerHTML = '';
+      negList.innerHTML = '';
 
       (ads.headlines || []).forEach(h => {
         hList.innerHTML += `<div class="ad-item"><span>${h}</span><span class="ad-chars">${h.length}/30</span></div>`;
@@ -406,12 +511,43 @@
         dList.innerHTML += `<div class="ad-item"><span>${d}</span><span class="ad-chars">${d.length}/90</span></div>`;
       });
       document.getElementById('descCount').textContent = (ads.descriptions || []).length + '/4';
+
+      (ads.negative_keywords || []).forEach(neg => {
+        negList.innerHTML += `<span style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; padding: 4px 8px; border-radius: 6px; font-size: 11px;">-${neg}</span>`;
+      });
     }
 
-    function setIframeDevice(device) {
+    function renderAccessCards(data) {
+      document.getElementById('gtmCardContent').innerHTML = `
+        <div style="font-size: 13px; color: #fff; margin-bottom: 6px;">Contêiner: <strong>${data.tracking.gtm_id}</strong></div>
+        <span class="badge-admin">✓ Convite de Admin Enviado para ${data.email}</span>
+      `;
+
+      document.getElementById('ga4CardContent').innerHTML = `
+        <div style="font-size: 13px; color: #fff; margin-bottom: 6px;">Stream ID: <strong>${data.tracking.ga4_id}</strong></div>
+        <span class="badge-admin">✓ Permissão roles/analytics.admin Atribuída</span>
+      `;
+
+      document.getElementById('gscCardContent').innerHTML = `
+        <div style="font-size: 13px; color: #fff; margin-bottom: 6px;">Permissão: <strong>siteOwner</strong></div>
+        <span class="badge-admin">✓ Proprietário Registrado</span>
+      `;
+
+      document.getElementById('adsCardContent').innerHTML = `
+        <div style="font-size: 13px; color: #fff; margin-bottom: 6px;">Conta: <strong>${data.tracking.ads_cid}</strong></div>
+        <a href="${data.admin_invitations.ads_direct_link}" target="_blank" class="badge-admin" style="text-decoration: none; color: #86efac; cursor: pointer;">
+          ✓ Aceitar Convite de Admin no Google Ads ↗
+        </a>
+      `;
+    }
+
+    function setIframeDevice(device, btn) {
+      document.querySelectorAll('.device-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
       const iframe = document.getElementById('siteIframe');
       iframe.style.width = device === 'mobile' ? '390px' : '100%';
       iframe.style.margin = device === 'mobile' ? '0 auto' : '0';
+      iframe.style.display = 'block';
     }
 
     function openNewTab() {
@@ -421,25 +557,44 @@
       w.document.close();
     }
 
-    function addCopilotMsg(text, type) {
-      const box = document.getElementById('chatMessages');
-      const div = document.createElement('div');
-      div.className = 'chat-msg ' + type;
-      div.innerHTML = text;
-      box.appendChild(div);
-      box.scrollTop = box.scrollHeight;
+    function downloadSiteHtml() {
+      if (!currentGeneratedData) return;
+      const blob = new Blob([currentGeneratedData.site_html], { type: 'text/html' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'index.html';
+      a.click();
     }
 
-    function sendCopilotMsg() {
-      const input = document.getElementById('copilotInput');
-      const val = input.value.trim();
-      if (!val) return;
-      addCopilotMsg(val, 'user');
-      input.value = '';
+    function downloadDossierMd() {
+      if (!currentGeneratedData) return;
+      const c = currentGeneratedData.competitors;
+      const md = `# Dossiê de Inteligência & Concorrentes — ${currentGeneratedData.business_name}
+Nicho: ${currentGeneratedData.niche} | Região: ${currentGeneratedData.region}
 
-      setTimeout(() => {
-        addCopilotMsg('Alteração processada! Atualizando o preview e sincronizando tags...', 'bot');
-      }, 800);
+## Cenário
+${c.niche_summary}
+
+## Concorrentes
+${(c.competitors || []).map((x, i) => `${i+1}. **${x.name}** (${x.domain})\n   - Foco: ${x.focus}\n   - Abordagem: ${x.approach}`).join('\n\n')}
+
+## Brechas de Mercado
+${(c.market_gaps || []).map(g => `### ${g.title}\n${g.description}`).join('\n\n')}
+`;
+      const blob = new Blob([md], { type: 'text/markdown' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `dossie_concorrentes_${currentGeneratedData.business_name.toLowerCase().replace(/ /g, '_')}.md`;
+      a.click();
+    }
+
+    function downloadAdsCsv() {
+      if (!currentGeneratedData) return;
+      const blob = new Blob([currentGeneratedData.csv_content], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'google_ads_import.csv';
+      a.click();
     }
   </script>
 </body>

@@ -10,9 +10,22 @@ class GoogleAuthManager:
     Suporta renovação automática de access token via Refresh Token e credenciais OAuth2.
     """
     def __init__(self, credentials_path: Optional[str] = None):
-        self.credentials_path = credentials_path or os.getenv("GOOGLE_CREDENTIALS_PATH", "google_credentials.json")
+        self.credentials_path = credentials_path or self._resolve_credentials_path()
         self._access_token = None
         self._creds = None
+
+    def _resolve_credentials_path(self) -> str:
+        candidates = [
+            os.getenv("GOOGLE_CREDENTIALS_PATH"),
+            "google_credentials.json",
+            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "google_credentials.json"),
+            r"E:\git\LaunchPilot\google_credentials.json",
+            r"e:\git\desbloqueio\google_ads_credentials.json"
+        ]
+        for c in candidates:
+            if c and os.path.exists(c):
+                return c
+        return "google_credentials.json"
 
     def load_credentials(self) -> Dict[str, Any]:
         if self._creds:
@@ -57,7 +70,7 @@ class GoogleAuthManager:
 
         req = urllib.request.Request("https://oauth2.googleapis.com/token", data=token_data, method="POST")
         try:
-            with urllib.request.urlopen(req) as resp:
+            with urllib.request.urlopen(req, timeout=15) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
                 self._access_token = data["access_token"]
                 return self._access_token

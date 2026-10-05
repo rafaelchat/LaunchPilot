@@ -24,3 +24,6 @@ dist/
 
 # Project configs with secrets
 launchpilot.config.json
+.vercel
+
+output/
