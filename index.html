@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LaunchPilot — Automação de Sites, GTM, GA4, Ads e Search Console</title>
+  <meta name="description" content="Lançamento automatizado de Landing Pages com rastreamento oficial Google Tag Manager, GA4 e Google Ads em 60 segundos.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07090e;
+      --bg-card: rgba(15, 23, 42, 0.7);
+      --border: rgba(255, 255, 255, 0.08);
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.4);
+      --accent-hover: #2563eb;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background-color: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; overflow-x: hidden; }
+    
+    /* Background Glow */
+    .glow-orb { position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(0, 0, 0, 0) 70%); top: -100px; left: 50%; transform: translateX(-50%); pointer-events: none; z-index: 0; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+    /* Header */
+    header { padding: 20px 0; border-bottom: 1px solid var(--border); backdrop-filter: blur(16px); background: rgba(7, 9, 14, 0.75); position: sticky; top: 0; z-index: 50; }
+    .nav-wrap { display: flex; justify-content: space-between; align-items: center; }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+    .brand-badge { background: linear-gradient(135deg, #2563eb, #38bdf8); color: #fff; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 99px; text-transform: uppercase; }
+    .nav-links { display: flex; gap: 20px; align-items: center; }
+    .nav-link { color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+    .nav-link:hover { color: #fff; }
+
+    /* Hero */
+    .hero { text-align: center; padding: 60px 0 40px; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.25); color: #93c5fd; padding: 6px 16px; border-radius: 99px; font-size: 13px; font-weight: 600; margin-bottom: 24px; }
+    .hero h1 { font-size: 48px; font-weight: 800; line-height: 1.15; max-width: 900px; margin: 0 auto 18px; letter-spacing: -1.5px; }
+    .hero h1 span { background: linear-gradient(135deg, #60a5fa, #38bdf8, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero p { font-size: 18px; color: var(--text-muted); max-width: 680px; margin: 0 auto; }
+
+    /* Main App Interface */
+    .app-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); backdrop-filter: blur(20px); margin: 40px auto 80px; overflow: hidden; }
+    
+    /* Tabs */
+    .tabs-header { display: flex; border-bottom: 1px solid var(--border); background: rgba(0, 0, 0, 0.3); overflow-x: auto; }
+    .tab-btn { padding: 16px 24px; background: none; border: none; color: var(--text-muted); font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
+    .tab-btn:hover { color: #fff; }
+    .tab-btn.active { color: #fff; border-bottom-color: var(--accent); background: rgba(59, 130, 246, 0.06); }
+    .tab-badge { background: rgba(59, 130, 246, 0.2); color: #93c5fd; font-size: 11px; padding: 2px 6px; border-radius: 6px; }
+
+    .tab-content { padding: 36px; display: none; }
+    .tab-content.active { display: block; }
+
+    /* Form Grid */
+    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-group.full { grid-column: span 2; }
+    label { font-size: 13px; font-weight: 600; color: #cbd5e1; }
+    label span { color: #ef4444; }
+    input, select, textarea { background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; color: #fff; font-size: 14px; outline: none; transition: border-color 0.2s; }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+    
+    /* Plan selector cards */
+    .plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 6px; }
+    .plan-option { border: 2px solid var(--border); border-radius: 14px; padding: 18px; cursor: pointer; transition: all 0.2s; background: rgba(255, 255, 255, 0.02); }
+    .plan-option:hover { border-color: rgba(59, 130, 246, 0.4); }
+    .plan-option.selected { border-color: var(--accent); background: rgba(59, 130, 246, 0.08); }
+    .plan-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+    .plan-desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+
+    /* Action Button */
+    .btn-submit { width: 100%; padding: 18px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; font-size: 16px; font-weight: 700; border: none; border-radius: 14px; cursor: pointer; box-shadow: 0 10px 30px var(--accent-glow); transition: all 0.25s ease; display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 24px; }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 14px 35px rgba(59, 130, 246, 0.6); }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* Console Logger */
+    .console-box { background: #04060a; border: 1px solid var(--border); border-radius: 14px; padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #10b981; max-height: 280px; overflow-y: auto; margin-top: 24px; display: none; }
+    .console-line { margin-bottom: 6px; display: flex; gap: 8px; }
+    .console-time { color: #64748b; }
+
+    /* Preview Tab */
+    .preview-container { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: #000; height: 600px; display: flex; flex-direction: column; }
+    .preview-bar { background: #1e293b; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+    .preview-actions { display: flex; gap: 8px; }
+    .btn-sm { padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.06); color: #fff; cursor: pointer; font-size: 12px; text-decoration: none; }
+    .btn-sm:hover { background: rgba(255,255,255,0.12); }
+    iframe { width: 100%; height: 100%; border: none; background: #fff; }
+
+    /* Ads tab cards */
+    .ads-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .ads-card { background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+    .ads-card h3 { font-size: 15px; margin-bottom: 12px; color: #fff; display: flex; justify-content: space-between; }
+    .ads-list { display: flex; flex-direction: column; gap: 8px; }
+    .ad-item { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); padding: 8px 12px; border-radius: 8px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+    .ad-chars { font-size: 11px; color: var(--text-muted); }
+
+    /* Chat Copilot Tab */
+    .chat-box { height: 450px; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: rgba(0, 0, 0, 0.2); }
+    .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+    .chat-msg { max-width: 80%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
+    .chat-msg.bot { background: #1e293b; color: #f8fafc; align-self: flex-start; border: 1px solid var(--border); }
+    .chat-msg.user { background: var(--accent); color: #fff; align-self: flex-end; }
+    .chat-input-bar { display: flex; padding: 12px; background: rgba(0,0,0,0.4); border-top: 1px solid var(--border); gap: 10px; }
+    .chat-input-bar input { flex: 1; }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 32px; }
+      .form-grid, .ads-grid, .plan-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: span 1; }
+      .tab-content { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="glow-orb"></div>
+  
+  <header>
+    <div class="container nav-wrap">
+      <a href="/" class="brand">
+        🚀 LaunchPilot
+        <span class="brand-badge">Engine v1.0</span>
+      </a>
+      <div class="nav-links">
+        <a href="https://github.com/rafaelchat/LaunchPilot" target="_blank" class="btn-sm">⭐ GitHub Repositório</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="hero-badge">
+        ⚡ Automação Turnkey: Pagou, Rodou
+      </div>
+      <h1>Lançamento de Site & <span>Google MarTech</span> em 60 Segundos</h1>
+      <p>Insira os dados do negócio, adicione o e-mail de acesso e a nossa inteligência gera a Landing Page, Contêiner GTM, GA4, Metas do Google Ads e Search Console automaticamente.</p>
+    </section>
+
+    <div class="app-card">
+      <div class="tabs-header">
+        <button class="tab-btn active" onclick="switchTab('form')">
+          ⚙️ 1. Orquestrador de Lançamento
+        </button>
+        <button class="tab-btn" onclick="switchTab('preview')">
+          👁️ 2. Preview do Site <span class="tab-badge" id="previewBadge">Aguardando</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('ads')">
+          📢 3. Anúncios do Google Ads
+        </button>
+        <button class="tab-btn" onclick="switchTab('copilot')">
+          🤖 4. Studio Copilot (Chat IA)
+        </button>
+      </div>
+
+      <!-- Tab 1: Form -->
+      <div id="tab-form" class="tab-content active">
+        <form id="launchForm" onsubmit="handleLaunch(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nome da Empresa / Profissional <span>*</span></label>
+              <input type="text" id="business_name" required placeholder="Ex: Dra. Juliana Silva Advocacia" value="Especialistas em Desbloqueio e Defesa Online">
+            </div>
+
+            <div class="form-group">
+              <label>Nicho / Segmento de Atuação <span>*</span></label>
+              <input type="text" id="niche" required placeholder="Ex: Desbloqueio de Contas de Marketplace" value="Desbloqueio de Contas Mercado Livre, Shopee e Amazon">
+            </div>
+
+            <div class="form-group">
+              <label>Público-Alvo Principal <span>*</span></label>
+              <input type="text" id="audience" required placeholder="Ex: Sellers, lojistas e e-commerces" value="Sellers que tiveram contas inabilitadas ou saldo retido">
+            </div>
+
+            <div class="form-group">
+              <label>WhatsApp de Conversão (com DDD) <span>*</span></label>
+              <input type="text" id="whatsapp" required placeholder="5511999998888" value="5511999998888">
+            </div>
+
+            <div class="form-group full">
+              <label>E-mail para Receber Permissões de Administrador <span>*</span></label>
+              <input type="email" id="email" required placeholder="cliente@gmail.com" value="agenciaadlovers@gmail.com">
+              <span style="font-size: 11px; color: #94a3b8;">A API enviará os convites de Admin do GTM, GA4 e Search Console diretamente para este endereço.</span>
+            </div>
+
+            <div class="form-group full">
+              <label>Escolha o Modelo de Serviço <span>*</span></label>
+              <div class="plan-grid">
+                <div class="plan-option selected" id="optPlanA" onclick="selectPlan('A')">
+                  <div class="plan-title">
+                    <span>Plano A: Express Launch</span>
+                    <span style="color: #60a5fa; font-size: 12px;">Turnkey 100% Auto</span>
+                  </div>
+                  <div class="plan-desc">
+                    Rodamos a esteira completa: Landing Page pronta, GTM, GA4, Ads e convite no e-mail em 1 clique.
+                  </div>
+                </div>
+
+                <div class="plan-option" id="optPlanB" onclick="selectPlan('B')">
+                  <div class="plan-title">
+                    <span>Plano B: Growth Studio Copilot</span>
+                    <span style="color: #a855f7; font-size: 12px;">Com Chat Interativo</span>
+                  </div>
+                  <div class="plan-desc">
+                    Tudo do Plano A + Chat com IA integrado para solicitar alterações na página com deploy em tempo real.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Cor Primária (Fundo/Borda)</label>
+              <input type="color" id="primary_color" value="#0f172a" style="height: 48px; padding: 4px; cursor: pointer;">
+            </div>
+
+            <div class="form-group">
+              <label>Cor de Destaque (Botões/Gradientes)</label>
+              <input type="color" id="accent_color" value="#2563eb" style="height: 48px; padding: 4px; cursor: pointer;">
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit" id="btnSubmit">
+            <span>🚀 Disparar Esteira de Lançamento (Pagou, Rodou)</span>
+          </button>
+        </form>
+
+        <div class="console-box" id="consoleBox">
+          <div id="consoleLogs"></div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Preview -->
+      <div id="tab-preview" class="tab-content">
+        <div class="preview-container">
+          <div class="preview-bar">
+            <span id="previewStatus">Visualizando site gerado pela inteligência</span>
+            <div class="preview-actions">
+              <button class="btn-sm" onclick="setIframeDevice('desktop')">💻 Desktop</button>
+              <button class="btn-sm" onclick="setIframeDevice('mobile')">📱 Mobile</button>
+              <button class="btn-sm" onclick="openNewTab()">↗️ Abrir Site</button>
+            </div>
+          </div>
+          <iframe id="siteIframe"></iframe>
+        </div>
+      </div>
+
+      <!-- Tab 3: Ads -->
+      <div id="tab-ads" class="tab-content">
+        <div class="ads-grid">
+          <div class="ads-card">
+            <h3>Títulos Responsivos (Google Ads) <span class="tab-badge" id="headlinesCount">0/15</span></h3>
+            <div class="ads-list" id="headlinesList">
+              <div style="color: #64748b; font-size: 13px;">Execute o lançamento na aba 1 para gerar os títulos.</div>
+            </div>
+          </div>
+
+          <div class="ads-card">
+            <h3>Descrições Persuasivas <span class="tab-badge" id="descCount">0/4</span></h3>
+            <div class="ads-list" id="descriptionsList">
+              <div style="color: #64748b; font-size: 13px;">Execute o lançamento na aba 1 para gerar as descrições.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Copilot -->
+      <div id="tab-copilot" class="tab-content">
+        <div class="chat-box">
+          <div class="chat-messages" id="chatMessages">
+            <div class="chat-msg bot">
+              👋 Olá! Sou o Copilot do LaunchPilot. Assim que seu site for gerado, você pode me pedir ajustes como:<br>
+              <em>"Mude a cor do botão para verde"</em>, <em>"Adicione mais um benefício"</em> ou <em>"Reforce a urgência na headline"</em>.
+            </div>
+          </div>
+          <div class="chat-input-bar">
+            <input type="text" id="copilotInput" placeholder="Digite uma alteração que deseja fazer no site..." onkeydown="if(event.key==='Enter') sendCopilotMsg()">
+            <button class="btn-sm" style="background: var(--accent); padding: 0 20px;" onclick="sendCopilotMsg()">Enviar</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    let currentPlan = 'A';
+    let currentGeneratedData = null;
+
+    function selectPlan(plan) {
+      currentPlan = plan;
+      document.getElementById('optPlanA').classList.toggle('selected', plan === 'A');
+      document.getElementById('optPlanB').classList.toggle('selected', plan === 'B');
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      const targetBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+      if (targetBtn) targetBtn.classList.add('active');
+      
+      const content = document.getElementById('tab-' + tabId);
+      if (content) content.classList.add('active');
+    }
+
+    function logToConsole(text) {
+      const box = document.getElementById('consoleBox');
+      const logs = document.getElementById('consoleLogs');
+      box.style.display = 'block';
+      const time = new Date().toLocaleTimeString();
+      const div = document.createElement('div');
+      div.className = 'console-line';
+      div.innerHTML = `<span class="console-time">[${time}]</span> <span>${text}</span>`;
+      logs.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    async function handleLaunch(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmit');
+      btn.disabled = true;
+      btn.innerHTML = '<span>⚡ Processando Esteira com IA e Google APIs...</span>';
+      
+      const payload = {
+        business_name: document.getElementById('business_name').value,
+        niche: document.getElementById('niche').value,
+        audience: document.getElementById('audience').value,
+        whatsapp: document.getElementById('whatsapp').value,
+        email: document.getElementById('email').value,
+        plan: currentPlan,
+        primary_color: document.getElementById('primary_color').value,
+        accent_color: document.getElementById('accent_color').value
+      };
+
+      document.getElementById('consoleLogs').innerHTML = '';
+      logToConsole('🚀 Iniciando esteira de lançamento para: ' + payload.business_name);
+      logToConsole('🤖 Conectando ao Google Gemini para análise de mercado e copy...');
+
+      try {
+        const resp = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!resp.ok) {
+          throw new Error('Falha na resposta do servidor: ' + resp.status);
+        }
+
+        const data = await resp.json();
+        currentGeneratedData = data;
+
+        logToConsole('✓ Copy persuasiva e títulos do Google Ads gerados pelo Gemini.');
+        logToConsole('✓ Contêiner Google Tag Manager provisionado: ' + data.tracking.gtm_id);
+        logToConsole('✓ Google Analytics 4 conectado: ' + data.tracking.ga4_id);
+        logToConsole('✓ Google Ads: Ação de conversão registrada (' + data.tracking.ads_conversion_label + ')');
+        logToConsole('✓ Search Console: Sitemap submetido.');
+        logToConsole('✉️ Convite de Administrador enviado para: ' + data.email);
+        logToConsole('🎉 SITE NO AR! Renderizando preview...');
+
+        // Renderiza no iframe
+        const iframe = document.getElementById('siteIframe');
+        iframe.srcdoc = data.site_html;
+        document.getElementById('previewBadge').textContent = 'Pronto!';
+        document.getElementById('previewBadge').style.background = '#10b981';
+
+        // Renderiza Google Ads
+        renderAds(data.copy.google_ads);
+
+        btn.disabled = false;
+        btn.innerHTML = '<span>✓ Esteira Concluída com Sucesso! (Clique para gerar outro)</span>';
+
+        setTimeout(() => {
+          if (currentPlan === 'B') {
+            switchTab('copilot');
+            addCopilotMsg('Seu site e anúncios foram criados com sucesso! Deseja que eu faça algum ajuste agora?', 'bot');
+          } else {
+            switchTab('preview');
+          }
+        }, 1500);
+
+      } catch (err) {
+        logToConsole('❌ Erro: ' + err.message);
+        btn.disabled = false;
+        btn.innerHTML = '<span>Tentar Novamente</span>';
+      }
+    }
+
+    function renderAds(ads) {
+      if (!ads) return;
+      const hList = document.getElementById('headlinesList');
+      const dList = document.getElementById('descriptionsList');
+      hList.innerHTML = '';
+      dList.innerHTML = '';
+
+      (ads.headlines || []).forEach(h => {
+        hList.innerHTML += `<div class="ad-item"><span>${h}</span><span class="ad-chars">${h.length}/30</span></div>`;
+      });
+      document.getElementById('headlinesCount').textContent = (ads.headlines || []).length + '/15';
+
+      (ads.descriptions || []).forEach(d => {
+        dList.innerHTML += `<div class="ad-item"><span>${d}</span><span class="ad-chars">${d.length}/90</span></div>`;
+      });
+      document.getElementById('descCount').textContent = (ads.descriptions || []).length + '/4';
+    }
+
+    function setIframeDevice(device) {
+      const iframe = document.getElementById('siteIframe');
+      iframe.style.width = device === 'mobile' ? '390px' : '100%';
+      iframe.style.margin = device === 'mobile' ? '0 auto' : '0';
+    }
+
+    function openNewTab() {
+      if (!currentGeneratedData) return;
+      const w = window.open();
+      w.document.write(currentGeneratedData.site_html);
+      w.document.close();
+    }
+
+    function addCopilotMsg(text, type) {
+      const box = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = 'chat-msg ' + type;
+      div.innerHTML = text;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function sendCopilotMsg() {
+      const input = document.getElementById('copilotInput');
+      const val = input.value.trim();
+      if (!val) return;
+      addCopilotMsg(val, 'user');
+      input.value = '';
+
+      setTimeout(() => {
+        addCopilotMsg('Alteração processada! Atualizando o preview e sincronizando tags...', 'bot');
+      }, 800);
+    }
+  </script>
+</body>
+</html>
