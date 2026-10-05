@@ -38,7 +38,8 @@ async function getGoogleAccessToken() {
         client_secret: clientSecret,
         refresh_token: refreshToken,
         grant_type: 'refresh_token'
-      }).toString()
+      }).toString(),
+      signal: AbortSignal.timeout(6000)
     });
 
     if (!tokenResp.ok) {
@@ -338,7 +339,8 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem markdown, sem \`\`\`json):
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }]
-          })
+          }),
+          signal: AbortSignal.timeout(12000)
         });
 
         if (geminiResp.ok) {
@@ -446,7 +448,8 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem markdown, sem \`\`\`json):
         body: JSON.stringify({
           name: `LP - ${finalName}`,
           usageContext: ['web']
-        })
+        }),
+        signal: AbortSignal.timeout(6000)
       });
 
       if (gtmCreateRes.ok) {
@@ -469,7 +472,8 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem markdown, sem \`\`\`json):
                 containerId: gtmContainerId,
                 permission: 'admin'
               }
-            })
+            }),
+            signal: AbortSignal.timeout(6000)
           });
         }
       }
@@ -486,7 +490,8 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem markdown, sem \`\`\`json):
           displayName: `LP - ${finalName}`,
           timeZone: 'America/Sao_Paulo',
           currencyCode: 'BRL'
-        })
+        }),
+        signal: AbortSignal.timeout(6000)
       });
 
       if (ga4CreateRes.ok) {
@@ -504,7 +509,8 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem markdown, sem \`\`\`json):
             body: JSON.stringify({
               emailAddress: email,
               directRoles: ['predefinedRoles/admin']
-            })
+            }),
+            signal: AbortSignal.timeout(6000)
           });
         }
       }
@@ -514,7 +520,8 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem markdown, sem \`\`\`json):
         try {
           const gscResp = await fetch(`https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(crawlData.url)}`, {
             method: 'PUT',
-            headers: { 'Authorization': `Bearer ${accessToken}` }
+            headers: { 'Authorization': `Bearer ${accessToken}` },
+            signal: AbortSignal.timeout(6000)
           });
           if (gscResp.ok) {
             gscStatus = `VERIFICADO (${crawlData.url})`;
