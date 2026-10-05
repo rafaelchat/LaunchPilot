@@ -1,0 +1,49 @@
+{
+  "project": {
+    "name": "LaunchPilot Demo",
+    "slug": "demo-launchpilot"
+  },
+  "client": {
+    "email": "cliente@empresa.com.br",
+    "auto_invite_admin": true
+  },
+  "business": {
+    "company_name": "Especialistas em Desbloqueio e Defesa Online",
+    "niche": "Direito Digital e Marketplaces",
+    "target_audience": "Sellers Mercado Livre, Shopee e Amazon",
+    "whatsapp_number": "5511999998888",
+    "whatsapp_default_message": "Olá! Minha conta foi bloqueada e gostaria de reativar.",
+    "city": "São Paulo - SP",
+    "headline": "Sua Conta Foi Bloqueada? Recupere seu Acesso e Saldo Travado",
+    "subheadline": "Atuação especializada e célere com pedido de liminar de urgência para restabelecer suas vendas e liberar seu capital de giro.",
+    "cta_text": "Falar com Especialista no WhatsApp",
+    "theme": {
+      "primary_color": "#0f172a",
+      "accent_color": "#2563eb",
+      "accent_hover": "#1d4ed8"
+    }
+  },
+  "tracking": {
+    "gtm": {
+      "enabled": true,
+      "account_id": "YOUR_GTM_ACCOUNT_ID"
+    },
+    "ga4": {
+      "enabled": true,
+      "account_id": "YOUR_GA4_ACCOUNT_ID"
+    },
+    "google_ads": {
+      "enabled": true,
+      "customer_id": "YOUR_CUSTOMER_ID",
+      "developer_token": "YOUR_DEV_TOKEN",
+      "login_customer_id": "YOUR_MCC_ID"
+    },
+    "search_console": {
+      "enabled": true
+    }
+  },
+  "deploy": {
+    "provider": "vercel",
+    "domain": "meusite.vercel.app"
+  }
+}

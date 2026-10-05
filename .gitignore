@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# Environment and Credentials
+.env
+.env.local
+google_credentials.json
+google_ads_credentials.json
+service_account.json
+token.json
+
+# Builds & Outputs
+build/
+dist/
+.vercel/
+*.log
+
+# Project configs with secrets
+launchpilot.config.json
